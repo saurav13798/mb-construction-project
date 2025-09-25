@@ -1,0 +1,17 @@
+{
+  "name": "mb-construction-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for MB Construction website",
+  "main": "index.html",
+  "scripts": {
+    "start": "live-server public",
+    "build": "echo \"Frontend build complete\"",
+    "dev": "live-server public --port=8080"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  },
+  "keywords": ["construction", "website", "frontend"],
+  "author": "MB Construction",
+  "license": "ISC"
+}

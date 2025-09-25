@@ -1,0 +1,71 @@
+{
+  "name": "mb-construction-website",
+  "version": "1.0.0",
+  "description": "Professional website for MB Construction - Building redevelopment, government contracts, and manpower supply",
+  "main": "backend/server.js",
+  "scripts": {
+    "install-all": "npm run install-backend && npm run install-frontend",
+    "install-backend": "cd backend && npm install",
+    "install-frontend": "cd frontend && npm install",
+    "start": "concurrently \"npm run start-backend\" \"npm run start-frontend\"",
+    "start-backend": "cd backend && npm run dev",
+    "start-frontend": "cd frontend && npm start",
+    "backend": "cd backend && npm run dev",
+    "frontend": "cd frontend && npm start",
+    "dev": "npm run start",
+    "quick-start": "quick-start.bat",
+    "setup": "setup.bat",
+    "setup-full": "npm run install-all && npm run db:init && npm run db:seed",
+    "db:init": "cd backend && npm run db:init",
+    "db:seed": "cd backend && npm run db:seed",
+    "db:stats": "cd backend && npm run db:stats",
+    "db:backup": "cd backend && npm run db:backup",
+    "db:reset": "cd backend && npm run db:reset",
+    "db:validate": "cd backend && npm run db:validate",
+    "db:optimize": "cd backend && npm run db:optimize",
+    "db:manager": "db-manager.bat",
+    "test": "cd backend && npm test",
+    "test:full": "npm run test && npm run test-project",
+    "test-project": "node test-project.js",
+    "verify": "node verify-setup.js",
+    "build": "echo 'Building project...' && npm run build-frontend",
+    "build-frontend": "cd frontend && npm run build",
+    "clean": "rimraf node_modules package-lock.json backend/node_modules backend/package-lock.json frontend/node_modules frontend/package-lock.json",
+    "clean:logs": "del /q backend\\logs\\*.log 2>nul || echo No logs to clean",
+    "clean:uploads": "del /q backend\\uploads\\temp\\*.* 2>nul || echo No temp uploads to clean",
+    "clean:all": "npm run clean && npm run clean:logs && npm run clean:uploads",
+    "launcher": "start.bat",
+    "health": "cd backend && node -e \"require('http').get('http://localhost:3000/health', res => { let data = ''; res.on('data', chunk => data += chunk); res.on('end', () => console.log(JSON.parse(data))); }).on('error', err => console.log('Server not running'))\"",
+    "logs": "type backend\\logs\\app.log 2>nul || echo No logs available",
+    "status": "npm run health && npm run db:stats",
+    "view-data": "cd backend && node view-data.js",
+    "check-contacts": "cd backend && node -e \"const mongoose = require('mongoose'); mongoose.connect('mongodb://localhost:27017/mb_construction').then(() => mongoose.connection.db.collection('contacts').find().toArray()).then(data => { console.log('📧 Total Contacts:', data.length); data.forEach((c,i) => console.log(`${i+1}. ${c.name} - ${c.email}`)); mongoose.disconnect(); })\"",
+    "count-data": "cd backend && node -e \"const mongoose = require('mongoose'); mongoose.connect('mongodb://localhost:27017/mb_construction').then(async () => { const contacts = await mongoose.connection.db.collection('contacts').countDocuments(); const projects = await mongoose.connection.db.collection('projects').countDocuments(); console.log('📊 Data Summary:'); console.log('📧 Contacts:', contacts); console.log('🏗️ Projects:', projects); mongoose.disconnect(); })\""
+  },
+  "keywords": [
+    "construction",
+    "website",
+    "mongodb",
+    "express",
+    "nodejs",
+    "responsive",
+    "professional"
+  ],
+  "author": "MB Construction",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mbconstruction/website.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mbconstruction/website/issues"
+  },
+  "homepage": "https://mbconstruction.com"
+}
