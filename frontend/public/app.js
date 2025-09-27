@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initScrollEffects();
     initCounters();
     
-    console.log('🚀 MB Construction website initialized successfully!');
+    // ...existing code...
 });
 
 // Welcome Screen Animation
@@ -234,11 +234,11 @@ function initForms() {
     const contactForm = document.getElementById('contact-form');
     
     if (contactForm) {
-        console.log('📋 Contact form found, initializing...');
+    // ...existing code...
         
         // Add form validation on input for better UX
         const inputs = contactForm.querySelectorAll('input, select, textarea');
-        console.log('📝 Found', inputs.length, 'form inputs');
+    // ...existing code...
         
         inputs.forEach(input => {
             input.addEventListener('blur', validateField);
@@ -246,9 +246,9 @@ function initForms() {
         });
         
         contactForm.addEventListener('submit', handleFormSubmit);
-        console.log('✅ Contact form initialized successfully');
+    // ...existing code...
     } else {
-        console.log('❌ Contact form not found!');
+    // ...existing code...
     }
 }
 
@@ -337,14 +337,14 @@ function clearFieldError(field) {
 async function handleFormSubmit(e) {
     e.preventDefault();
     
-    console.log('🚀 Form submission started');
+    // ...existing code...
     
     const form = e.target;
     const formData = new FormData(form);
     const submitBtn = form.querySelector('button[type="submit"]');
     const originalText = submitBtn.querySelector('span').textContent;
     
-    console.log('📝 Form data collected:', Object.fromEntries(formData));
+    // ...existing code...
     
     // Show loading state
     submitBtn.classList.add('loading');
@@ -356,12 +356,12 @@ async function handleFormSubmit(e) {
     
     // Validate form
     if (!validateForm(form, formData)) {
-        console.log('❌ Form validation failed');
+    // ...existing code...
         resetSubmitButton(submitBtn, originalText);
         return;
     }
     
-    console.log('✅ Form validation passed');
+    // ...existing code...
     
     // Prepare data for API
     const contactData = {
@@ -379,8 +379,8 @@ async function handleFormSubmit(e) {
             ? 'http://localhost:3000' 
             : window.location.origin;
         
-        console.log('🌐 Making API request to:', `${apiUrl}/api/contact`);
-        console.log('📤 Sending data:', contactData);
+    // ...existing code...
+    // ...existing code...
         
         const response = await fetch(`${apiUrl}/api/contact`, {
             method: 'POST',
@@ -390,19 +390,19 @@ async function handleFormSubmit(e) {
             body: JSON.stringify(contactData)
         });
         
-        console.log('📥 Response status:', response.status);
-        console.log('📥 Response ok:', response.ok);
+    // ...existing code...
+    // ...existing code...
         
         const result = await response.json();
-        console.log('📥 Response data:', result);
+    // ...existing code...
         
         if (result.success) {
-            console.log('✅ Form submitted successfully');
+            // ...existing code...
             showSuccessModal();
             form.reset();
             showSuccessMessage('Thank you! Your message has been sent successfully.');
         } else {
-            console.log('❌ Server returned error:', result.message);
+            // ...existing code...
             throw new Error(result.message || 'Failed to send message');
         }
         
@@ -731,7 +731,7 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         // Uncomment if you want to add PWA capabilities
         // navigator.serviceWorker.register('/sw.js')
-        //     .then(registration => console.log('SW registered'))
+    // ...existing code...
         //     .catch(error => console.log('SW registration failed'));
     });
 }

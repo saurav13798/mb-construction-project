@@ -15,9 +15,9 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Show loading state
       const submitBtn = contactForm.querySelector('button[type="submit"]');
-      const originalBtnText = submitBtn.textContent;
+      const originalBtnText = submitBtn.innerHTML;
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Sending...';
+      submitBtn.querySelector('span').textContent = 'Sending...';
       
       // Convert form data to JSON
       const formJson = {};
@@ -25,25 +25,41 @@ document.addEventListener('DOMContentLoaded', function() {
         formJson[key] = value;
       });
       
-      // Send form data to backend
-      fetch('/api/contact', {
+      // Send form data to backend using environment-aware API URL
+      const apiUrl = window.location.hostname === 'localhost' 
+          ? 'http://localhost:3000' 
+          : window.location.origin;
+      
+  // ...existing code...
+  // ...existing code...
+      
+      fetch(`${apiUrl}/api/contact`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(formJson)
       })
-      .then(response => response.json())
+      .then(response => {
+  // ...existing code...
+        if (!response.ok) {
+          throw new Error('Server returned ' + response.status);
+        }
+        return response.text().then(text => {
+          return text ? JSON.parse(text) : {};
+        });
+      })
       .then(data => {
+  // ...existing code...
         // Reset form
         contactForm.reset();
         
         // Show success message
-        showNotification('success', 'Message sent successfully! We will contact you soon.');
+        showSuccessModal();
         
         // Reset button
         submitBtn.disabled = false;
-        submitBtn.textContent = originalBtnText;
+        submitBtn.innerHTML = originalBtnText;
       })
       .catch(error => {
         console.error('Error submitting form:', error);
@@ -51,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Reset button
         submitBtn.disabled = false;
-        submitBtn.textContent = originalBtnText;
+        submitBtn.innerHTML = originalBtnText;
       });
     });
     

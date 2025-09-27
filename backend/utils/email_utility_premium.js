@@ -1,21 +1,26 @@
 const nodemailer = require('nodemailer');
 
-class EmailService {
+class EmailServicePremium {
   constructor() {
     this.transporter = null;
     this.initializeTransporter();
   }
 
   initializeTransporter() {
-    this.transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: process.env.EMAIL_PORT || 587,
-      secure: process.env.EMAIL_PORT == 465, // true for 465, false for other ports
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
+    try {
+      this.transporter = nodemailer.createTransport({
+        host: process.env.EMAIL_HOST,
+        port: process.env.EMAIL_PORT || 587,
+        secure: process.env.EMAIL_PORT == 465, // true for 465, false for other ports
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
+    } catch (err) {
+      console.warn('Failed to initialize premium transporter:', err && err.message ? err.message : err);
+      this.transporter = null;
+    }
   }
 
   async sendContactNotification(contactData) {
@@ -26,27 +31,25 @@ class EmailService {
       to: process.env.ADMIN_EMAIL,
       subject: 'New Contact Form Submission - MB Construction',
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #2c5282; border-bottom: 2px solid #3182ce; padding-bottom: 10px;">
-            New Contact Form Submission
-          </h2>
+        <div style="font-family: Arial, sans-serif; max-width: 680px; margin: 0 auto; color: #1f2937;">
+          <h2 style="color: #0f172a; border-bottom: 3px solid #f59e0b; padding-bottom: 12px;">New Contact Form Submission</h2>
 
-          <div style="background-color: #f7fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <p><strong>Name:</strong> ${name}</p>
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
-            <p><strong>Company:</strong> ${company || 'Not provided'}</p>
-            <p><strong>Service:</strong> ${this.formatService(service)}</p>
-            <p><strong>Submitted:</strong> ${new Date().toLocaleString('en-IN')}</p>
+          <div style="background-color: #f8fafc; padding: 22px; border-radius: 10px; margin: 18px 0;">
+            <p style="margin: 6px 0;"><strong>Name:</strong> ${name}</p>
+            <p style="margin: 6px 0;"><strong>Email:</strong> ${email}</p>
+            <p style="margin: 6px 0;"><strong>Phone:</strong> ${phone || 'Not provided'}</p>
+            <p style="margin: 6px 0;"><strong>Company:</strong> ${company || 'Not provided'}</p>
+            <p style="margin: 6px 0;"><strong>Service:</strong> ${this.formatService(service)}</p>
+            <p style="margin: 6px 0;"><strong>Submitted:</strong> ${new Date().toLocaleString('en-IN')}</p>
           </div>
 
-          <div style="background-color: #fff; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px;">
-            <h3 style="color: #2d3748; margin-top: 0;">Message:</h3>
-            <p style="line-height: 1.6; color: #4a5568;">${message}</p>
+          <div style="background-color: #ffffff; border: 1px solid #e6edf3; padding: 20px; border-radius: 8px;">
+            <h3 style="color: #0f172a; margin-top: 0;">Message:</h3>
+            <p style="line-height: 1.6; color: #334155;">${message}</p>
           </div>
 
-          <div style="margin-top: 20px; padding: 15px; background-color: #bee3f8; border-radius: 8px;">
-            <p style="margin: 0; color: #2c5282;">
+          <div style="margin-top: 20px; padding: 15px; background-color: #fff8f1; border-radius: 8px;">
+            <p style="margin: 0; color: #81471b;">
               <strong>Action Required:</strong> Please respond to this inquiry within 24 hours.
             </p>
           </div>
@@ -55,6 +58,7 @@ class EmailService {
     };
 
     try {
+      if (!this.transporter) throw new Error('Transporter not initialized');
       await this.transporter.sendMail(mailOptions);
       console.log('Admin notification email sent successfully');
     } catch (error) {
@@ -71,32 +75,30 @@ class EmailService {
       to: email,
       subject: 'Thank you for contacting MB Construction',
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background-color: #2c5282; color: white; padding: 20px; text-align: center;">
-            <h1 style="margin: 0;">MB Construction</h1>
-            <p style="margin: 5px 0 0 0;">Building Tomorrow, Today</p>
+        <div style="font-family: Arial, sans-serif; max-width: 680px; margin: 0 auto; color: #1f2937;">
+          <div style="background-color: #0f172a; color: #ffffff; padding: 22px; text-align: center; border-radius: 8px 8px 0 0;">
+            <h1 style="margin: 0; font-size: 22px;">MB Construction</h1>
+            <p style="margin: 6px 0 0 0;">Building Tomorrow, Today</p>
           </div>
 
-          <div style="padding: 30px 20px;">
-            <h2 style="color: #2c5282;">Thank you for your inquiry!</h2>
+          <div style="padding: 30px 20px; background: #fff;">
+            <h2 style="color: #0f172a;">Thank you for your inquiry!</h2>
 
             <p>Dear ${name},</p>
 
             <p>Thank you for contacting MB Construction. We have received your inquiry about our <strong>${this.formatService(service)}</strong> services.</p>
 
-            <div style="background-color: #f7fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #2d3748; margin-top: 0;">What happens next?</h3>
-              <ul style="color: #4a5568; line-height: 1.6;">
+            <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #0f172a; margin-top: 0;">What happens next?</h3>
+              <ul style="color: #334155; line-height: 1.6;">
                 <li>Our team will review your message within 2-4 hours</li>
                 <li>We'll contact you within 24 hours with a detailed response</li>
                 <li>If urgent, call us directly at <strong>+91 98765 43210</strong></li>
               </ul>
             </div>
 
-            <div style="background-color: #e6fffa; border-left: 4px solid #38b2ac; padding: 15px;">
-              <p style="margin: 0; color: #2c7a7b;">
-                <strong>Our Expertise:</strong> ${this.getServiceDescription(service)}
-              </p>
+            <div style="background-color: #fff8f1; border-left: 4px solid #f59e0b; padding: 15px; border-radius: 6px;">
+              <p style="margin: 0; color: #6b3f00;"><strong>Our Expertise:</strong> ${this.getServiceDescription(service)}</p>
             </div>
 
             <p style="margin-top: 30px;">Best regards,<br>
@@ -105,7 +107,7 @@ class EmailService {
             📞 +91 98765 43210</p>
           </div>
 
-          <div style="background-color: #f8f9fa; padding: 15px; text-align: center; color: #6c757d; font-size: 12px;">
+          <div style="background-color: #f1f5f9; padding: 15px; text-align: center; color: #475569; font-size: 12px; border-radius: 0 0 8px 8px;">
             <p>This is an automated response. Please do not reply to this email.</p>
           </div>
         </div>
@@ -113,6 +115,7 @@ class EmailService {
     };
 
     try {
+      if (!this.transporter) throw new Error('Transporter not initialized');
       await this.transporter.sendMail(mailOptions);
       console.log('Auto-reply email sent successfully');
     } catch (error) {
@@ -143,6 +146,7 @@ class EmailService {
 
   async testConnection() {
     try {
+      if (!this.transporter) throw new Error('Transporter not initialized');
       await this.transporter.verify();
       console.log('✅ Email service is ready');
       return true;
@@ -153,4 +157,4 @@ class EmailService {
   }
 }
 
-module.exports = new EmailService();
+module.exports = new EmailServicePremium();

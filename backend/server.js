@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const compression = require('compression');
+const path = require('path');
 const { validateEnvironment } = require('./config/env-validation');
 const trackVisit = require('./middleware/visitTracker');
 const { notFoundHandler, errorHandler } = require('./middleware/error_middleware');
@@ -13,6 +15,9 @@ validateEnvironment();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Hide technology stack header
+app.disable('x-powered-by');
 
 // Security middleware
 app.use(helmet({
@@ -46,6 +51,9 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+// Enable gzip compression for responses
+app.use(compression());
+
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -62,6 +70,41 @@ mongoose.connect(process.env.MONGODB_URI)
     console.error('❌ MongoDB connection failed:', error);
     process.exit(1);
   });
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString(), uptime: process.uptime(), environment: process.env.NODE_ENV, version: '1.0.0' });
+});
+
+// Serve frontend static files (prefer `dist/` when available)
+const publicDir = path.join(__dirname, '..', 'frontend', 'dist');
+const fallbackPublicDir = path.join(__dirname, '..', 'frontend', 'public');
+const staticDirToUse = require('fs').existsSync(publicDir) ? publicDir : fallbackPublicDir;
+
+app.use(express.static(staticDirToUse, {
+  etag: true,
+  lastModified: true,
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) {
+      // Always revalidate HTML pages
+      res.setHeader('Cache-Control', 'no-cache');
+    } else if (/\.min\.(js|css)$/.test(filePath)) {
+      // Long cache for fingerprinted/minified assets
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    } else if (/\.(js|css|svg|png|jpg|jpeg|gif|webp)$/.test(filePath)) {
+      // Moderate caching for other static assets
+      res.setHeader('Cache-Control', 'public, max-age=604800');
+    }
+  }
+}));
+
+// Custom 404 handler for API routes
+app.use((req, res, next) => {
+  if (req.originalUrl.startsWith('/api')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
+  next();
+});
 
 // Routes
 app.use('/api/contact', require('./routes/contact'));

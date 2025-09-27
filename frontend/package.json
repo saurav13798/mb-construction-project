@@ -5,13 +5,20 @@
   "main": "index.html",
   "scripts": {
     "start": "live-server public",
-    "build": "echo \"Frontend build complete\"",
-    "dev": "live-server public --port=8080"
+    "build": "node minify.js && node build.js",
+    "dev": "live-server public --port=8080",
+    "minify": "node minify.js"
   },
   "devDependencies": {
-    "live-server": "^1.2.2"
+    "clean-css-cli": "^5.6.3",
+    "live-server": "^1.2.2",
+    "terser": "^5.44.0"
   },
-  "keywords": ["construction", "website", "frontend"],
+  "keywords": [
+    "construction",
+    "website",
+    "frontend"
+  ],
   "author": "MB Construction",
   "license": "ISC"
 }

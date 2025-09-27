@@ -5,10 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MB Construction - Building Tomorrow, Today</title>
     <meta name="description" content="Premium construction services - Redevelopment, Government Contracts, and Manpower Supply. Building Tomorrow, Today.">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="animations.css">
+    <!-- Open Graph / Facebook -->
+    <meta property="og:title" content="MB Construction - Building Tomorrow, Today" />
+    <meta property="og:description" content="Premium construction services - Redevelopment, Government Contracts, and Manpower Supply." />
+    <meta property="og:image" content="/hero-bg-premium.svg" />
+    <meta property="og:url" content="https://mbconstruction.com" />
+    <meta property="og:type" content="website" />
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="MB Construction - Building Tomorrow, Today" />
+    <meta name="twitter:description" content="Premium construction services - Redevelopment, Government Contracts, and Manpower Supply." />
+    <meta name="twitter:image" content="/hero-bg-premium.svg" />
+    <link rel="stylesheet" href="style.min.css">
+    <link rel="stylesheet" href="animations.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <meta name="theme-color" content="#000000">
@@ -16,7 +28,7 @@
 <body>
     <a href="#main-content" class="skip-to-content">Skip to content</a>
     <!-- Welcome Screen -->
-    <div class="welcome-screen" id="welcome-screen">
+    <div class="welcome-screen fade-in scale-up" id="welcome-screen">
         <div class="welcome-content">
             <div class="welcome-logo">
                 <h1 class="welcome-title">MB Construction</h1>
@@ -65,9 +77,9 @@
 
     <!-- Hero Section -->
     <section class="hero" id="home">
-        <div class="hero-background">
-            <div class="hero-overlay"></div>
-            <div class="hero-particles"></div>
+        <div class="hero-background fade-in scale-up">
+            <div class="hero-overlay fade-in"></div>
+            <div class="hero-particles fade-in" style="animation: float 20s ease-in-out infinite, fadeIn 2s var(--transition-slow) both;"></div>
         </div>
         
         <div class="hero-content">
@@ -113,18 +125,18 @@
                 </p>
             </div>
             
-            <div class="stats-grid">
-                <div class="stat-card glass-card">
+            <div class="stats-grid staggered">
+                <div class="stat-card glass-card fade-in scale-up" style="--stagger-index:0">
                     <div class="stat-number" data-target="50">0</div>
                     <div class="stat-label">Projects Completed</div>
                     <div class="stat-icon">🏗️</div>
                 </div>
-                <div class="stat-card glass-card">
+                <div class="stat-card glass-card fade-in scale-up" style="--stagger-index:1">
                     <div class="stat-number" data-target="200">0</div>
                     <div class="stat-label">Skilled Professionals</div>
                     <div class="stat-icon">👷</div>
                 </div>
-                <div class="stat-card glass-card">
+                <div class="stat-card glass-card fade-in scale-up" style="--stagger-index:2">
                     <div class="stat-number" data-target="15">0</div>
                     <div class="stat-label">Years Experience</div>
                     <div class="stat-icon">⭐</div>
@@ -185,7 +197,7 @@
             </div>
             
             <div class="services-grid">
-                <div class="service-card glass-card">
+                <div class="service-card glass-card fade-in scale-up" style="--stagger-index:0">
                     <div class="service-icon">
                         <div class="icon-bg"></div>
                         <span>🏢</span>
@@ -202,7 +214,7 @@
                     </div>
                 </div>
                 
-                <div class="service-card glass-card">
+                <div class="service-card glass-card fade-in scale-up" style="--stagger-index:1">
                     <div class="service-icon">
                         <div class="icon-bg"></div>
                         <span>🛣️</span>
@@ -219,7 +231,7 @@
                     </div>
                 </div>
                 
-                <div class="service-card glass-card">
+                <div class="service-card glass-card fade-in scale-up" style="--stagger-index:2">
                     <div class="service-icon">
                         <div class="icon-bg"></div>
                         <span>👥</span>
@@ -248,7 +260,7 @@
             </div>
             
             <div class="projects-grid">
-                <div class="project-card">
+                <div class="project-card fade-in scale-up" style="--stagger-index:0">
                     <div class="project-image">
                         <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&h=400&fit=crop&q=80" alt="Residential Complex" loading="lazy">
                         <div class="project-overlay">
@@ -261,7 +273,7 @@
                     </div>
                 </div>
                 
-                <div class="project-card">
+                <div class="project-card fade-in scale-up" style="--stagger-index:1">
                     <div class="project-image">
                         <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&h=400&fit=crop&q=80" alt="Highway Project" loading="lazy">
                         <div class="project-overlay">
@@ -274,7 +286,7 @@
                     </div>
                 </div>
                 
-                <div class="project-card">
+                <div class="project-card fade-in scale-up" style="--stagger-index:2">
                     <div class="project-image">
                         <img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=600&h=400&fit=crop&q=80" alt="Construction Team" loading="lazy">
                         <div class="project-overlay">
@@ -299,7 +311,7 @@
             </div>
             
             <div class="testimonials-grid">
-                <div class="testimonial-card glass-card">
+                <div class="testimonial-card glass-card fade-in scale-up" style="--stagger-index:0">
                     <div class="testimonial-content">
                         <p>"MB Construction delivered our residential complex project on time and within budget. Their attention to detail and quality is exceptional."</p>
                     </div>
@@ -311,7 +323,7 @@
                     </div>
                 </div>
                 
-                <div class="testimonial-card glass-card">
+                <div class="testimonial-card glass-card fade-in scale-up" style="--stagger-index:1">
                     <div class="testimonial-content">
                         <p>"Professional, reliable, and efficient. MB Construction has been our go-to partner for government infrastructure projects."</p>
                     </div>
@@ -323,7 +335,7 @@
                     </div>
                 </div>
                 
-                <div class="testimonial-card glass-card">
+                <div class="testimonial-card glass-card fade-in scale-up" style="--stagger-index:2">
                     <div class="testimonial-content">
                         <p>"Their skilled workforce and project management capabilities are outstanding. Highly recommended for any construction project."</p>
                     </div>
@@ -350,7 +362,7 @@
             </div>
             
             <div class="careers-content">
-                <div class="careers-info glass-card">
+                <div class="careers-info glass-card fade-in scale-up">
                     <h3>Why Work With Us?</h3>
                     <ul class="benefits-list">
                         <li>Competitive salary packages</li>
@@ -378,25 +390,25 @@
             
             <div class="contact-container">
                 <div class="contact-info">
-                    <div class="contact-card glass-card">
+                    <div class="contact-card glass-card fade-in scale-up" style="--stagger-index:0">
                         <div class="contact-icon">📍</div>
                         <h3>Office Address</h3>
                         <p>123 Construction Avenue<br>Mumbai, Maharashtra 400001</p>
                     </div>
                     
-                    <div class="contact-card glass-card">
+                    <div class="contact-card glass-card fade-in scale-up" style="--stagger-index:1">
                         <div class="contact-icon">📞</div>
                         <h3>Phone Number</h3>
                         <p>+91 98765 43210</p>
                     </div>
                     
-                    <div class="contact-card glass-card">
+                    <div class="contact-card glass-card fade-in scale-up" style="--stagger-index:2">
                         <div class="contact-icon">✉️</div>
                         <h3>Email</h3>
                         <p>info@mbconstruction.com</p>
                     </div>
                     
-                    <div class="contact-map glass-card">
+                    <div class="contact-map glass-card fade-in scale-up" style="--stagger-index:3">
                         <iframe 
                             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3771.9999999999995!2d72.8777!3d19.0760!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTnCsDA0JzMzLjYiTiA3MsKwNTInMzkuNyJF!5e0!3m2!1sen!2sin!4v1234567890"
                             width="100%" 
@@ -408,7 +420,7 @@
                     </div>
                 </div>
                 
-                <form class="contact-form glass-card" id="contact-form">
+                <form class="contact-form glass-card fade-in scale-up" id="contact-form">
                     <h3 class="form-title">Get a Quote or Send Message</h3>
                     <div class="form-row">
                         <div class="form-group">
@@ -574,11 +586,10 @@
         <span>↑</span>
     </button>
     
-    <script src="app.js"></script>
-    <script src="theme-switcher.js"></script>
-    <script src="animations.js"></script>
-    <script src="contact-form-fix.js"></script>
-    <script src="debug-contact.js"></script>
-    <script src="admin-dashboard.js"></script>
+    <script src="app.min.js" defer></script>
+    <script src="theme-switcher.min.js" defer></script>
+    <script src="animations.min.js" defer></script>
+    <script src="contact-form-fix.min.js" defer></script>
+    <script src="admin-dashboard.min.js" defer></script>
 </body>
 </html>

@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const metaThemeColor = document.querySelector('meta[name="theme-color"]');
         if (metaThemeColor) {
             let color = '#000000'; // dark
-            if (theme === 'light') color = '#ffffff';
+            if (theme === 'light') color = '#1e293b';
             if (theme === 'blue') color = '#0f172a';
             metaThemeColor.setAttribute('content', color);
         }
