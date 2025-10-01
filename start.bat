@@ -3,10 +3,10 @@ title MB Construction - Application Launcher
 color 0A
 
 echo.
-echo ╔══════════════════════════════════════════════════════════════╗
-echo ║                MB Construction Application                   ║
-echo ║                    Quick Launcher                            ║
-echo ╚══════════════════════════════════════════════════════════════╝
+echo ==============================================================
+echo                MB Construction Application                   
+echo                    Quick Launcher                            
+echo ==============================================================
 echo.
 
 REM Check for command line arguments
@@ -19,22 +19,24 @@ if "%COMMAND%"=="backend" goto :start_backend
 if "%COMMAND%"=="frontend" goto :start_frontend
 if "%COMMAND%"=="db" goto :database_menu
 if "%COMMAND%"=="test" goto :run_tests
+if "%COMMAND%"=="health" goto :health_check
 if "%COMMAND%"=="help" goto :show_help
 
 REM Default - show menu
 :show_menu
 echo Please select an option:
 echo.
-echo [1] 🚀 Start Full Application (Frontend + Backend)
-echo [2] 🔧 Start Backend Only
-echo [3] 🎨 Start Frontend Only
-echo [4] 📊 Database Operations
-echo [5] 🧪 Run Tests & Verification
-echo [6] 🛠️  First Time Setup
-echo [7] ❓ Help & Information
-echo [8] ❌ Exit
+echo [1] Start Full Application (Frontend + Backend)
+echo [2] Start Backend Only
+echo [3] Start Frontend Only
+echo [4] Database Operations
+echo [5] Run Tests and Verification
+echo [6] First Time Setup
+echo [7] Health Check and Status
+echo [8] Help and Information
+echo [9] Exit
 echo.
-set /p choice="Enter your choice (1-8): "
+set /p choice="Enter your choice (1-9): "
 
 if "%choice%"=="1" goto :start_full
 if "%choice%"=="2" goto :start_backend
@@ -42,8 +44,9 @@ if "%choice%"=="3" goto :start_frontend
 if "%choice%"=="4" goto :database_menu
 if "%choice%"=="5" goto :run_tests
 if "%choice%"=="6" goto :run_setup
-if "%choice%"=="7" goto :show_help
-if "%choice%"=="8" goto :exit
+if "%choice%"=="7" goto :health_check
+if "%choice%"=="8" goto :show_help
+if "%choice%"=="9" goto :exit
 goto :show_menu
 
 REM ========================================
@@ -60,7 +63,7 @@ if errorlevel 1 goto :exit
 REM Check if setup has been run
 if not exist "backend\.env" (
     echo.
-    echo ⚠️  Project not set up yet!
+    echo WARNING: Project not set up yet!
     echo    Please run setup first.
     echo.
     set /p run_setup="Would you like to run setup now? (Y/N): "
@@ -71,14 +74,14 @@ if not exist "backend\.env" (
 REM Check if MongoDB is running
 tasklist /FI "IMAGENAME eq mongod.exe" 2>NUL | find /I /N "mongod.exe">NUL
 if "%ERRORLEVEL%"=="0" (
-    echo ✅ MongoDB is running
+    echo OK: MongoDB is running
 ) else (
-    echo 🔄 Starting MongoDB...
+    echo INFO: Starting MongoDB...
     net start MongoDB >nul 2>&1
     if "%ERRORLEVEL%"=="0" (
-        echo ✅ MongoDB started successfully
+        echo OK: MongoDB started successfully
     ) else (
-        echo ⚠️  Starting MongoDB manually...
+        echo INFO: Starting MongoDB manually...
         start "MongoDB Server" /MIN mongod --dbpath "C:\data\db"
         timeout /t 2 /nobreak >nul
     )
@@ -86,7 +89,7 @@ if "%ERRORLEVEL%"=="0" (
 REM Optional: Check common dev ports
 call :check_ports 3000 "Backend"
 call :check_ports 8080 "Frontend"
-return
+exit /b 0
 
 REM ========================================
 REM   CHECK NODE/NPM AVAILABILITY
@@ -95,7 +98,7 @@ REM ========================================
 where node >nul 2>&1
 if not "%ERRORLEVEL%"=="0" (
     echo.
-    echo ❌ Node.js not found in PATH. Please install Node.js (v16+ recommended).
+    echo ERROR: Node.js not found in PATH. Please install Node.js (v16+ recommended).
     echo    Download: https://nodejs.org/
     echo.
     pause
@@ -104,7 +107,7 @@ if not "%ERRORLEVEL%"=="0" (
 where npm >nul 2>&1
 if not "%ERRORLEVEL%"=="0" (
     echo.
-    echo ❌ npm not found in PATH. Ensure Node.js installation added npm to PATH.
+    echo ERROR: npm not found in PATH. Ensure Node.js installation added npm to PATH.
     echo.
     pause
     exit /b 1
@@ -119,7 +122,7 @@ setlocal
 set "PORT=%~1"
 set "LABEL=%~2"
 for /f "tokens=5" %%p in ('netstat -ano ^| findstr /R ":%PORT% .*LISTENING"') do (
-    echo ⚠️  %LABEL% port %PORT% is already in use by PID %%p.
+    echo WARNING: %LABEL% port %PORT% is already in use by PID %%p.
 )
 endlocal
 exit /b 0
@@ -129,29 +132,29 @@ REM   START FULL APPLICATION
 REM ========================================
 :start_full
 echo.
-echo ╔══════════════════════════════════════════════════════════════╗
-echo ║                  STARTING FULL APPLICATION                  ║
-echo ╚══════════════════════════════════════════════════════════════╝
+echo ==============================================================
+echo                  STARTING FULL APPLICATION                  
+echo ==============================================================
 
 call :quick_check
 
 echo.
-echo 🚀 Starting both servers...
+echo Starting both servers...
 
 REM Start backend server
 echo    Starting backend server...
 call :ensure_logs
-start "MB Construction Backend" cmd /k "cd /d "%~dp0backend" && if exist node_modules (echo [Backend] deps OK) else (echo [Backend] installing... && npm ci --silent) && echo [Backend] Starting dev server... && npm run dev >> "%ROOT%logs\backend.log" 2>&1"
+start "MB Construction Backend" cmd /k "cd /d "%~dp0backend" && if exist node_modules (echo [Backend] deps OK) else (echo [Backend] installing... && npm install) && echo [Backend] Starting dev server... && npm run dev"
 
 REM Wait for backend to start
 timeout /t 3 /nobreak >nul
 
 REM Start frontend server
 echo    Starting frontend server...
-start "MB Construction Frontend" cmd /k "cd /d "%~dp0frontend" && if exist node_modules (echo [Frontend] deps OK) else (echo [Frontend] installing... && npm ci --silent) && echo [Frontend] Starting dev server... && npm start >> "%ROOT%logs\frontend.log" 2>&1"
+start "MB Construction Frontend" cmd /k "cd /d "%~dp0frontend" && if exist node_modules (echo [Frontend] deps OK) else (echo [Frontend] installing... && npm install) && echo [Frontend] Starting dev server... && npm start"
 
 echo.
-echo ✅ Both servers are starting in separate windows
+echo OK: Both servers are starting in separate windows
 echo.
 echo 🌐 Application URLs:
 echo    • Frontend: http://localhost:8080
@@ -177,24 +180,20 @@ REM   START BACKEND ONLY
 REM ========================================
 :start_backend
 echo.
-echo ╔══════════════════════════════════════════════════════════════╗
-echo ║                    STARTING BACKEND ONLY                    ║
-echo ╚══════════════════════════════════════════════════════════════╝
+echo ==============================================================
+echo                    STARTING BACKEND ONLY                    
+echo ==============================================================
 
 call :quick_check
 
 echo.
-echo 🔧 Starting backend server...
+echo Starting backend server...
 
 set /p DOINS="Install/update backend dependencies first? (Y/N): "
 if /i "%DOINS%"=="Y" (
     pushd "%~dp0backend"
     echo    Installing/updating dependencies...
-    if exist package-lock.json (
-        npm ci --silent
-    ) else (
-        npm install --silent
-    )
+    npm install
     popd
 )
 
@@ -205,7 +204,7 @@ echo 🔍 Health check: http://localhost:3000/health
 echo.
 call :ensure_logs
 pushd "%~dp0backend"
-npm run dev >> "%ROOT%logs\backend.log" 2>&1
+npm run dev
 popd
 goto :exit
 
@@ -214,22 +213,18 @@ REM   START FRONTEND ONLY
 REM ========================================
 :start_frontend
 echo.
-echo ╔══════════════════════════════════════════════════════════════╗
-echo ║                   STARTING FRONTEND ONLY                    ║
-echo ╚══════════════════════════════════════════════════════════════╝
+echo ==============================================================
+echo                   STARTING FRONTEND ONLY                    
+echo ==============================================================
 
 echo.
-echo 🎨 Starting frontend server...
+echo Starting frontend server...
 
 set /p DOINSFE="Install/update frontend dependencies first? (Y/N): "
 if /i "%DOINSFE%"=="Y" (
     pushd "%~dp0frontend"
     echo    Installing/updating dependencies...
-    if exist package-lock.json (
-        npm ci --silent
-    ) else (
-        npm install --silent
-    )
+    npm install
     popd
 )
 
@@ -239,7 +234,7 @@ echo 🌐 Frontend will be available at: http://localhost:8080
 echo.
 call :ensure_logs
 pushd "%~dp0frontend"
-npm start >> "%ROOT%logs\frontend.log" 2>&1
+npm start
 popd
 goto :exit
 
@@ -248,9 +243,9 @@ REM   DATABASE OPERATIONS
 REM ========================================
 :database_menu
 echo.
-echo ╔══════════════════════════════════════════════════════════════╗
-echo ║                   DATABASE OPERATIONS                       ║
-echo ╚══════════════════════════════════════════════════════════════╝
+echo ==============================================================
+echo                   DATABASE OPERATIONS                       
+echo ==============================================================
 
 call :quick_check
 
@@ -339,14 +334,12 @@ REM   RUN TESTS
 REM ========================================
 :run_tests
 echo.
-echo ╔══════════════════════════════════════════════════════════════╗
-echo ║                      RUNNING TESTS                          ║
-echo ╚══════════════════════════════════════════════════════════════╝
-
-call :quick_check
+echo ==============================================================
+echo                      RUNNING TESTS                          
+echo ==============================================================
 
 echo.
-echo 🧪 Running project tests and verification...
+echo Running project tests and verification...
 
 REM Run backend tests
 echo    Running backend tests...
@@ -354,12 +347,8 @@ pushd "%~dp0backend"
 npm test
 popd
 
-REM Run project verification
-echo    Running project verification...
-node verify-setup.js
-
 echo.
-echo ✅ Tests completed
+echo OK: Tests completed
 pause
 goto :show_menu
 
@@ -373,13 +362,54 @@ call setup.bat
 goto :exit
 
 REM ========================================
+REM   HEALTH CHECK & STATUS
+REM ========================================
+:health_check
+echo.
+echo ==============================================================
+echo                    HEALTH CHECK STATUS                      
+echo ==============================================================
+
+echo.
+echo Checking application health...
+
+REM Check if backend is running
+echo    Checking backend server...
+npm run health
+
+REM Check database status
+echo    Checking database status...
+npm run db:stats
+
+REM Check system requirements
+echo    Checking system requirements...
+echo    Node.js version:
+node --version
+echo    npm version:
+npm --version
+
+REM Check MongoDB
+echo    Checking MongoDB...
+tasklist /FI "IMAGENAME eq mongod.exe" 2>NUL | find /I /N "mongod.exe">NUL
+if "%ERRORLEVEL%"=="0" (
+    echo    OK: MongoDB is running
+) else (
+    echo    ERROR: MongoDB is not running
+)
+
+echo.
+echo OK: Health check completed
+pause
+goto :show_menu
+
+REM ========================================
 REM   HELP INFORMATION
 REM ========================================
 :show_help
 echo.
-echo ╔══════════════════════════════════════════════════════════════╗
-echo ║                         HELP GUIDE                          ║
-echo ╚══════════════════════════════════════════════════════════════╝
+echo ==============================================================
+echo                         HELP GUIDE                          
+echo ==============================================================
 echo.
 echo MB Construction Application Launcher - Help Guide
 echo.
@@ -392,6 +422,7 @@ echo    backend   - Start backend server only
 echo    frontend  - Start frontend server only
 echo    db        - Open database operations menu
 echo    test      - Run tests and verification
+echo    health    - Check application health and status
 echo    help      - Show this help guide
 echo.
 echo 🎮 INTERACTIVE MODE:

@@ -1,17 +1,18 @@
 require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const compression = require('compression');
 const path = require('path');
-const { validateEnvironment } = require('./config/env-validation');
+const EnvironmentValidator = require('./config/env-validation');
+const databaseManager = require('./utils/database-manager');
 const trackVisit = require('./middleware/visitTracker');
-const { notFound, errorHandler } = require('./middleware/error_middleware');
+const { notFound, errorHandler, asyncHandler } = require('./middleware/enhanced-error-middleware');
 
 // Validate environment variables first
-validateEnvironment();
+const envValidator = new EnvironmentValidator();
+envValidator.validateEnvironment();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -61,8 +62,8 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Visit tracking middleware (track all page visits for admin dashboard)
 app.use(trackVisit);
 
-// Database connection
-mongoose.connect(process.env.MONGODB_URI)
+// Database connection with enhanced error handling
+databaseManager.connect(process.env.MONGODB_URI)
   .then(() => {
     console.log('✅ Connected to MongoDB successfully');
   })
@@ -71,10 +72,21 @@ mongoose.connect(process.env.MONGODB_URI)
     process.exit(1);
   });
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString(), uptime: process.uptime(), environment: process.env.NODE_ENV, version: '1.0.0' });
-});
+// Enhanced health check endpoint
+app.get('/health', asyncHandler(async (req, res) => {
+  const dbHealth = await databaseManager.healthCheck();
+  const configSummary = envValidator.getConfigurationSummary();
+  
+  res.status(200).json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(), 
+    uptime: process.uptime(), 
+    environment: process.env.NODE_ENV, 
+    version: '1.0.0',
+    database: dbHealth,
+    configuration: configSummary
+  });
+}));
 
 // Serve frontend static files (prefer `dist/` when available)
 const publicDir = path.join(__dirname, '..', 'frontend', 'dist');
@@ -98,18 +110,18 @@ app.use(express.static(staticDirToUse, {
   }
 }));
 
-// Custom 404 handler for API routes
+// Routes
+app.use('/api/contact', require('./routes/contact'));
+app.use('/api/projects', require('./routes/project'));
+app.use('/api/admin', require('./routes/admin')); // Admin routes for dashboard
+
+// Custom 404 handler for API routes (must be after route registrations)
 app.use((req, res, next) => {
   if (req.originalUrl.startsWith('/api')) {
     return res.status(404).json({ error: 'API endpoint not found' });
   }
   next();
 });
-
-// Routes
-app.use('/api/contact', require('./routes/contact'));
-app.use('/api/projects', require('./routes/project'));
-app.use('/api/admin', require('./routes/admin')); // Admin routes for dashboard
 
 // (duplicate health endpoint removed)
 
@@ -128,15 +140,15 @@ app.get('/', (req, res) => {
 });
 
 // Error handling middleware (must be last)
-app.use(notFound);
-app.use(errorHandler);
+app.use(errorHandler.notFound);
+app.use(errorHandler.errorHandler);
 
-// Graceful shutdown
+// Enhanced graceful shutdown
 process.on('SIGINT', async () => {
   console.log('\n🔄 Received SIGINT, shutting down gracefully...');
   try {
-    await mongoose.connection.close();
-    console.log('📦 MongoDB connection closed');
+    await databaseManager.disconnect();
+    console.log('📦 Database connection closed');
     process.exit(0);
   } catch (error) {
     console.error('❌ Error during shutdown:', error);
@@ -147,8 +159,8 @@ process.on('SIGINT', async () => {
 process.on('SIGTERM', async () => {
   console.log('\n🔄 Received SIGTERM, shutting down gracefully...');
   try {
-    await mongoose.connection.close();
-    console.log('📦 MongoDB connection closed');
+    await databaseManager.disconnect();
+    console.log('📦 Database connection closed');
     process.exit(0);
   } catch (error) {
     console.error('❌ Error during shutdown:', error);

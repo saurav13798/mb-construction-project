@@ -80,9 +80,13 @@ start.bat db
 - **Backend API**: http://localhost:3000
 - **Health Check**: http://localhost:3000/health
 
-### 🧾 Logs
+### 🧾 Logs & Monitoring
 - Backend logs: `logs/backend.log`
 - Frontend logs: `logs/frontend.log`
+- **Enhanced Error Tracking**: All errors include request IDs and context
+- **Security Monitoring**: Configuration validation reports on startup
+- **Database Health**: Connection status and retry monitoring
+- **Performance Metrics**: Response times and error rates tracked
 
 ## 📁 Project Structure
 
@@ -121,16 +125,30 @@ npm install
 npm test
 ```
 
+### Run Enhanced Error Handling Tests
+```bash
+cd backend
+npm test -- enhanced-error-handling.test.js
+```
+
 ### Verify Project Setup
 ```bash
 npm run verify
 ```
 
+### Security Validation
+The application automatically validates security configurations on startup:
+- JWT secret strength (minimum 32 characters)
+- Email configuration completeness
+- CORS settings validation
+- Database connection security
+
 ### Manual Testing
-- Test contact form submission
+- Test contact form submission with error scenarios
 - Verify mobile responsiveness
-- Check API endpoints
-- Validate input sanitization
+- Check API endpoints error responses
+- Validate input sanitization and error messages
+- Test network connectivity error handling
 
 ## 📊 API Endpoints
 
@@ -147,13 +165,17 @@ npm run verify
 
 ## 🛡️ Security Features
 
-- **Input Validation**: Express-validator for all user inputs
-- **Rate Limiting**: 100 requests per 15 minutes
-- **CORS Protection**: Configured for specific origins
+- **Enhanced Error Handling**: Comprehensive error tracking with request IDs and context
+- **Environment Validation**: Automatic security configuration validation on startup
+- **JWT Security**: Enforced minimum 32-character secrets with strength validation
+- **Input Validation**: Express-validator for all user inputs with detailed error responses
+- **Rate Limiting**: 100 requests per 15 minutes with customizable settings
+- **CORS Protection**: Configured for specific origins with production validation
 - **Helmet.js**: Security headers protection
-- **File Upload Security**: Type and size restrictions
-- **XSS Prevention**: Input sanitization
-- **JWT Authentication**: Secure admin access
+- **File Upload Security**: Type and size restrictions with enhanced error handling
+- **XSS Prevention**: Input sanitization with consistent error reporting
+- **Database Resilience**: Connection retry logic with exponential backoff
+- **Frontend Error Management**: Global error handling with user-friendly messages
 
 ## 📱 Mobile Optimization
 
@@ -244,6 +266,7 @@ docker-compose up -d
    net start MongoDB  # Windows
    sudo systemctl start mongod  # Linux
    ```
+   The enhanced database manager will automatically retry connections with exponential backoff.
 
 2. **Port Already in Use**
    ```bash
@@ -260,8 +283,20 @@ docker-compose up -d
 
 4. **Frontend Not Loading**
    - Clear browser cache
-   - Check console for errors
+   - Check console for errors (enhanced error handler provides detailed logs)
    - Verify file paths
+   - Check network connectivity (automatic detection included)
+
+5. **Security Configuration Warnings**
+   - **JWT_SECRET too short**: Generate a secure 32+ character secret
+   - **Email placeholder values**: Replace with actual credentials
+   - **Localhost in production**: Update FRONTEND_URL for production
+
+6. **Enhanced Error Debugging**
+   - All API errors include unique request IDs for tracking
+   - Check browser console for detailed error information
+   - Frontend errors are automatically logged with context
+   - Database connection issues are logged with retry attempts
 
 ## 📚 Documentation
 

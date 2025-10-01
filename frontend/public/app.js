@@ -408,7 +408,13 @@ async function handleFormSubmit(e) {
         
     } catch (error) {
         console.error('❌ Form submission error:', error);
-        showErrorMessage('Failed to send message. Please try again or contact us directly.');
+        
+        // Use the enhanced error handler if available
+        if (window.errorHandler) {
+            window.errorHandler.handleApiError(error, { form });
+        } else {
+            showErrorMessage('Failed to send message. Please try again or contact us directly.');
+        }
     } finally {
         resetSubmitButton(submitBtn, originalText);
     }
