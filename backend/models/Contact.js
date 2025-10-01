@@ -191,17 +191,4 @@ contactSchema.statics.getServiceBreakdown = function() {
 };
 
 module.exports = mongoose.model('Contact', contactSchema);
-// Add this static method to your Contact model
-contactSchema.statics.getServiceBreakdown = function() {
-  return this.aggregate([
-    {
-      $group: {
-        _id: '$service',
-        count: { $sum: 1 }
-      }
-    },
-    {
-      $sort: { count: -1 }
-    }
-  ]);
-};
+// Note: getServiceBreakdown is defined above; removed duplicate definition

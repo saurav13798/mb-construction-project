@@ -50,6 +50,13 @@ REM ========================================
 REM   QUICK SYSTEM CHECK
 REM ========================================
 :quick_check
+REM Set project root for robust pathing
+set "ROOT=%~dp0"
+
+REM Basic tool checks (Node.js and npm)
+call :check_node
+if errorlevel 1 goto :exit
+
 REM Check if setup has been run
 if not exist "backend\.env" (
     echo.
@@ -76,7 +83,46 @@ if "%ERRORLEVEL%"=="0" (
         timeout /t 2 /nobreak >nul
     )
 )
+REM Optional: Check common dev ports
+call :check_ports 3000 "Backend"
+call :check_ports 8080 "Frontend"
 return
+
+REM ========================================
+REM   CHECK NODE/NPM AVAILABILITY
+REM ========================================
+:check_node
+where node >nul 2>&1
+if not "%ERRORLEVEL%"=="0" (
+    echo.
+    echo ❌ Node.js not found in PATH. Please install Node.js (v16+ recommended).
+    echo    Download: https://nodejs.org/
+    echo.
+    pause
+    exit /b 1
+)
+where npm >nul 2>&1
+if not "%ERRORLEVEL%"=="0" (
+    echo.
+    echo ❌ npm not found in PATH. Ensure Node.js installation added npm to PATH.
+    echo.
+    pause
+    exit /b 1
+)
+exit /b 0
+
+REM ========================================
+REM   CHECK PORT USAGE (Windows)
+REM ========================================
+:check_ports
+setlocal
+set "PORT=%~1"
+set "LABEL=%~2"
+for /f "tokens=5" %%p in ('netstat -ano ^| findstr /R ":%PORT% .*LISTENING"') do (
+    echo ⚠️  %LABEL% port %PORT% is already in use by PID %%p.
+)
+endlocal
+exit /b 0
 
 REM ========================================
 REM   START FULL APPLICATION
@@ -94,14 +140,15 @@ echo 🚀 Starting both servers...
 
 REM Start backend server
 echo    Starting backend server...
-start "MB Construction Backend" cmd /k "cd /d "%~dp0backend" && npm run dev"
+call :ensure_logs
+start "MB Construction Backend" cmd /k "cd /d "%~dp0backend" && if exist node_modules (echo [Backend] deps OK) else (echo [Backend] installing... && npm ci --silent) && echo [Backend] Starting dev server... && npm run dev >> "%ROOT%logs\backend.log" 2>&1"
 
 REM Wait for backend to start
 timeout /t 3 /nobreak >nul
 
 REM Start frontend server
 echo    Starting frontend server...
-start "MB Construction Frontend" cmd /k "cd /d "%~dp0frontend" && npm start"
+start "MB Construction Frontend" cmd /k "cd /d "%~dp0frontend" && if exist node_modules (echo [Frontend] deps OK) else (echo [Frontend] installing... && npm ci --silent) && echo [Frontend] Starting dev server... && npm start >> "%ROOT%logs\frontend.log" 2>&1"
 
 echo.
 echo ✅ Both servers are starting in separate windows
@@ -115,6 +162,11 @@ echo 📋 Server windows opened:
 echo    • Backend server (development mode with auto-reload)
 echo    • Frontend server (live development server)
 echo.
+set /p OPENURL="Open URLs in browser now? (Y/N): "
+if /i "%OPENURL%"=="Y" (
+    start "" http://localhost:8080
+    start "" http://localhost:3000/health
+)
 echo Close the server windows when you're done working.
 echo.
 pause
@@ -134,16 +186,27 @@ call :quick_check
 echo.
 echo 🔧 Starting backend server...
 
-cd backend
-echo    Installing/updating dependencies...
-npm install --silent
+set /p DOINS="Install/update backend dependencies first? (Y/N): "
+if /i "%DOINS%"=="Y" (
+    pushd "%~dp0backend"
+    echo    Installing/updating dependencies...
+    if exist package-lock.json (
+        npm ci --silent
+    ) else (
+        npm install --silent
+    )
+    popd
+)
 
 echo    Starting development server...
 echo.
 echo 🌐 Backend will be available at: http://localhost:3000
 echo 🔍 Health check: http://localhost:3000/health
 echo.
-npm run dev
+call :ensure_logs
+pushd "%~dp0backend"
+npm run dev >> "%ROOT%logs\backend.log" 2>&1
+popd
 goto :exit
 
 REM ========================================
@@ -158,15 +221,26 @@ echo ╚════════════════════════
 echo.
 echo 🎨 Starting frontend server...
 
-cd frontend
-echo    Installing/updating dependencies...
-npm install --silent
+set /p DOINSFE="Install/update frontend dependencies first? (Y/N): "
+if /i "%DOINSFE%"=="Y" (
+    pushd "%~dp0frontend"
+    echo    Installing/updating dependencies...
+    if exist package-lock.json (
+        npm ci --silent
+    ) else (
+        npm install --silent
+    )
+    popd
+)
 
 echo    Starting development server...
 echo.
 echo 🌐 Frontend will be available at: http://localhost:8080
 echo.
-npm start
+call :ensure_logs
+pushd "%~dp0frontend"
+npm start >> "%ROOT%logs\frontend.log" 2>&1
+popd
 goto :exit
 
 REM ========================================
@@ -193,13 +267,14 @@ echo [7] 🔙 Back to Main Menu
 echo.
 set /p db_choice="Enter your choice (1-7): "
 
-cd backend
+pushd "%~dp0backend"
 
 if "%db_choice%"=="1" (
     echo.
     echo 📊 Generating database statistics...
     npm run db:stats
     pause
+    popd
     goto :database_menu
 )
 
@@ -208,6 +283,7 @@ if "%db_choice%"=="2" (
     echo 🌱 Seeding sample data...
     npm run db:seed
     pause
+    popd
     goto :database_menu
 )
 
@@ -216,6 +292,7 @@ if "%db_choice%"=="3" (
     echo ✅ Validating database integrity...
     npm run db:validate
     pause
+    popd
     goto :database_menu
 )
 
@@ -224,6 +301,7 @@ if "%db_choice%"=="4" (
     echo 📦 Creating database backup...
     npm run db:backup
     pause
+    popd
     goto :database_menu
 )
 
@@ -236,6 +314,7 @@ if "%db_choice%"=="5" (
         npm run db:reset
     )
     pause
+    popd
     goto :database_menu
 )
 
@@ -248,11 +327,11 @@ if "%db_choice%"=="6" (
 )
 
 if "%db_choice%"=="7" (
-    cd ..
+    popd
     goto :show_menu
 )
 
-cd ..
+popd
 goto :database_menu
 
 REM ========================================
@@ -271,9 +350,9 @@ echo 🧪 Running project tests and verification...
 
 REM Run backend tests
 echo    Running backend tests...
-cd backend
+pushd "%~dp0backend"
 npm test
-cd ..
+popd
 
 REM Run project verification
 echo    Running project verification...
@@ -350,4 +429,13 @@ REM ========================================
 echo.
 echo Thank you for using MB Construction Application Launcher!
 echo.
+exit /b 0
+
+REM ========================================
+REM   HELPERS
+REM ========================================
+:ensure_logs
+if not exist "%~dp0logs" (
+    mkdir "%~dp0logs" >nul 2>&1
+)
 exit /b 0

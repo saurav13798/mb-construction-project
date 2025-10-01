@@ -56,7 +56,7 @@ npm run db:seed
 **Start Full Application:**
 ```bash
 # Interactive menu
-start.bat
+start.bat  # optimized: detects deps, logs to logs/ folder
 # Select option 1
 
 # Or direct command
@@ -79,6 +79,10 @@ start.bat db
 - **Frontend**: http://localhost:8080
 - **Backend API**: http://localhost:3000
 - **Health Check**: http://localhost:3000/health
+
+### 🧾 Logs
+- Backend logs: `logs/backend.log`
+- Frontend logs: `logs/frontend.log`
 
 ## 📁 Project Structure
 
@@ -110,9 +114,11 @@ mb-construction-website/
 
 ## 🧪 Testing & Verification
 
-### Run Comprehensive Tests
+### Run API Tests (Backend)
 ```bash
-npm run test-project
+cd backend
+npm install
+npm test
 ```
 
 ### Verify Project Setup

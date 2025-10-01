@@ -15,6 +15,7 @@ function validateEnvironment() {
     'EMAIL_PASS',
     'EMAIL_FROM',
     'ADMIN_EMAIL',
+    'ADMIN_REGISTRATION_CODE',
     'MAX_FILE_SIZE',
     'BCRYPT_ROUNDS',
     'SESSION_SECRET',

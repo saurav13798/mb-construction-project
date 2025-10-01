@@ -101,60 +101,22 @@ document.addEventListener('DOMContentLoaded', () => {
     errorMessage.textContent = '';
     const username = loginForm.elements['username'].value;
     const password = loginForm.elements['password'].value;
-    
-    // Hardcoded admin credentials for testing
-    if (username === 'admin' && password === 'admin123') {
-      // Generate a simple token for testing
-      const token = 'admin-test-token-' + Date.now();
-      setAuthToken(token);
-      showDashboard();
-      
-      // Show test data since we're bypassing the API
-      visitsContainer.innerHTML = '<h4>Test Visit Data</h4><ul><li>2024-05-01: 15 visits</li><li>2024-05-02: 23 visits</li><li>2024-05-03: 18 visits</li></ul>';
-      contactsContainer.innerHTML = '<h4>Test Contact Data</h4><ul><li>Redevelopment: 5 inquiries</li><li>Government Contract: 3 inquiries</li><li>Manpower Supply: 2 inquiries</li></ul>';
-      
-      return;
-    }
-    
     try {
-      // Only try the API if not using the test credentials
-      const apiUrl = window.location.hostname === 'localhost' 
-          ? 'http://localhost:3000' 
-          : window.location.origin;
-          
-      const res = await fetch(`${apiUrl}/api/admin/login`, {
+      const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });
-      
       if (!res.ok) {
-        const errText = await res.text();
-        let errMessage = 'Login failed';
-        try {
-          const errJson = JSON.parse(errText);
-          errMessage = errJson.message || errMessage;
-        } catch (parseError) {
-          console.error('Error parsing error response:', parseError);
-        }
-        throw new Error(errMessage);
+        const err = await res.json();
+        throw new Error(err.message || 'Login failed');
       }
-      
-      const responseText = await res.text();
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error('Error parsing response:', parseError);
-        throw new Error('Invalid response from server');
-      }
-      
+      const data = await res.json();
       setAuthToken(data.token);
       showDashboard();
       await loadDashboardData();
     } catch (error) {
-      console.error('Login error:', error);
-      errorMessage.textContent = error.message || 'Login failed. Please try again.';
+      errorMessage.textContent = error.message;
     }
   });
 

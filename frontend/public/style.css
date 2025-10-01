@@ -3211,3 +3211,6 @@ section {
 [data-theme="light"] .card * {
   color: var(--color-text);
 }
+
+/* EOF guard: close any remaining open blocks in legacy sections */
+}

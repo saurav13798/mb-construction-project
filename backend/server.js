@@ -8,7 +8,7 @@ const compression = require('compression');
 const path = require('path');
 const { validateEnvironment } = require('./config/env-validation');
 const trackVisit = require('./middleware/visitTracker');
-const { notFoundHandler, errorHandler } = require('./middleware/error_middleware');
+const { notFound, errorHandler } = require('./middleware/error_middleware');
 
 // Validate environment variables first
 validateEnvironment();
@@ -111,16 +111,7 @@ app.use('/api/contact', require('./routes/contact'));
 app.use('/api/projects', require('./routes/project'));
 app.use('/api/admin', require('./routes/admin')); // Admin routes for dashboard
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    environment: process.env.NODE_ENV,
-    version: '1.0.0'
-  });
-});
+// (duplicate health endpoint removed)
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -137,7 +128,7 @@ app.get('/', (req, res) => {
 });
 
 // Error handling middleware (must be last)
-app.use(notFoundHandler);
+app.use(notFound);
 app.use(errorHandler);
 
 // Graceful shutdown
@@ -165,13 +156,29 @@ process.on('SIGTERM', async () => {
   }
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 MB Construction API server running on port ${PORT}`);
-  console.log(`🌐 Environment: ${process.env.NODE_ENV}`);
-  console.log(`📡 CORS enabled for: ${process.env.FRONTEND_URL}`);
-  console.log(`🛡️ Security middleware enabled`);
-  console.log(`📊 Admin dashboard available at: /api/admin`);
-});
+// Start server unless running tests
+if (process.env.NODE_ENV !== 'test') {
+  const server = app.listen(PORT, () => {
+    console.log(`🚀 MB Construction API server running on port ${PORT}`);
+    console.log(`🌐 Environment: ${process.env.NODE_ENV}`);
+    console.log(`📡 CORS enabled for: ${process.env.FRONTEND_URL}`);
+    console.log(`🛡️ Security middleware enabled`);
+    console.log(`📊 Admin dashboard available at: /api/admin`);
+  });
+
+  // Handle server startup errors
+  server.on('error', (error) => {
+    if (error.code === 'EADDRINUSE') {
+      console.error(`❌ Port ${PORT} is already in use. Please:`);
+      console.error(`   1. Kill the process using: taskkill /F /IM node.exe`);
+      console.error(`   2. Or change the PORT in .env file`);
+      console.error(`   3. Or run: npx kill-port ${PORT}`);
+      process.exit(1);
+    } else {
+      console.error('❌ Server startup error:', error);
+      process.exit(1);
+    }
+  });
+}
 
 module.exports = app;

@@ -1,11 +1,24 @@
 const express = require('express');
 const router = express.Router();
-const { verifyAdminToken, adminLogin } = require('../middleware/adminAuth');
+const { verifyAdminToken } = require('../middleware/adminAuth');
 const Visit = require('../models/Visit');
 const Contact = require('../models/Contact');
+const adminController = require('../controllers/adminController');
+const { body } = require('express-validator');
+
+// Admin registration (guarded by registration code)
+router.post('/register', [
+  body('username').trim().isLength({ min: 3, max: 50 }),
+  body('email').optional().trim().isEmail().normalizeEmail(),
+  body('password').isLength({ min: 8 }),
+  body('registrationCode').isString()
+], adminController.register);
 
 // Admin login route (no auth required)
-router.post('/login', adminLogin);
+router.post('/login', [
+  body('username').trim().notEmpty(),
+  body('password').isLength({ min: 8 })
+], adminController.login);
 
 // Get total visits grouped by day (last 30 days)
 router.get('/visits', verifyAdminToken, async (req, res) => {
