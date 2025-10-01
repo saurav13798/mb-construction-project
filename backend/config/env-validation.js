@@ -22,7 +22,11 @@ class EnvironmentValidator {
         if (this.errors.length > 0) {
             console.error('❌ Environment validation failed with errors:');
             this.errors.forEach(error => console.error(`  - ${error}`));
-            process.exit(1);
+            
+            // Don't exit in test environment, just log errors
+            if (process.env.NODE_ENV !== 'test') {
+                process.exit(1);
+            }
         }
         
         if (this.warnings.length > 0) {

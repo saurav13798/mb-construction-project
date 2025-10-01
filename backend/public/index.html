@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Server</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .api-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .endpoint {
+            background: #e9ecef;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>API Server</h1>
+        <p>This is the backend API server for your application.</p>
+        
+        <div class="api-info">
+            <h3>Available Endpoints:</h3>
+            <div class="endpoint">GET /health - Health check</div>
+            <div class="endpoint">POST /api/contact - Submit contact form</div>
+            <div class="endpoint">POST /api/admin/register - Register admin</div>
+            <div class="endpoint">POST /api/admin/login - Admin login</div>
+            <div class="endpoint">GET /api/admin/visits - Get visit statistics (requires auth)</div>
+            <div class="endpoint">GET /api/admin/contacts - Get contact statistics (requires auth)</div>
+        </div>
+        
+        <p><strong>Server Status:</strong> <span style="color: green;">Running</span></p>
+        <p><strong>Environment:</strong> <span id="env">Loading...</span></p>
+        <p><strong>Database:</strong> <span id="db">Loading...</span></p>
+    </div>
+
+    <script>
+        // Fetch health check data
+        fetch('/health')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('env').textContent = data.environment || 'Unknown';
+                document.getElementById('db').textContent = data.database?.status || 'Unknown';
+            })
+            .catch(error => {
+                document.getElementById('env').textContent = 'Error';
+                document.getElementById('db').textContent = 'Error';
+            });
+    </script>
+</body>
+</html>

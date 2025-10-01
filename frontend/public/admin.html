@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - MB Construction</title>
+    <meta name="description" content="MB Construction Admin Dashboard - Analytics and Inquiry Management">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="animations.css">
+    <script src="professional.js" defer></script>
+    <script src="admin-dashboard.js" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="robots" content="noindex, nofollow">
+</head>
+<body class="admin-body">
+    <!-- Navigation -->
+    <nav class="navbar admin-navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="brand-logo">MB</div>
+                <div class="brand-text">
+                    <span class="brand-name">MB Construction</span>
+                    <span class="brand-tagline">Admin Dashboard</span>
+                </div>
+            </div>
+            
+            <div class="nav-actions">
+                <a href="index.html" class="btn btn-secondary">
+                    <span>← Back to Site</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Admin Dashboard Section -->
+    <section id="admin-dashboard-section" class="admin-section">
+        <div class="container">
+            <div class="admin-container">
+                <!-- Login Form -->
+                <div id="admin-login-panel" class="admin-panel enterprise-card">
+                    <div class="admin-header">
+                        <div class="admin-logo">
+                            <div class="brand-logo">MB</div>
+                            <h2>Admin Portal</h2>
+                        </div>
+                        <p class="admin-subtitle">Secure access to dashboard analytics and inquiry management</p>
+                    </div>
+                    
+                    <form id="adminLoginForm" class="admin-form">
+                        <div class="form-group">
+                            <label for="admin-username">Username</label>
+                            <input type="text" id="admin-username" name="username" required autocomplete="username">
+                        </div>
+                        <div class="form-group">
+                            <label for="admin-password">Password</label>
+                            <input type="password" id="admin-password" name="password" required autocomplete="current-password">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full admin-login-btn">
+                            <span>Access Dashboard</span>
+                        </button>
+                    </form>
+                    
+                    <div id="admin-error-message" class="error-message"></div>
+                    
+                    <div class="admin-footer">
+                        <p>Authorized personnel only. All access is logged and monitored.</p>
+                        <div class="auth-toggle">
+                            <button type="button" id="show-register-btn" class="link-btn">
+                                Need an account? Register here
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Registration Form -->
+                <div id="admin-register-panel" class="admin-panel enterprise-card" style="display: none;">
+                    <div class="admin-header">
+                        <div class="admin-logo">
+                            <div class="brand-logo">MB</div>
+                            <h2>Admin Registration</h2>
+                        </div>
+                        <p class="admin-subtitle">Create a new admin account for dashboard access</p>
+                    </div>
+                    
+                    <form id="adminRegisterForm" class="admin-form">
+                        <div class="form-group">
+                            <label for="register-username">Username</label>
+                            <input type="text" id="register-username" name="username" required autocomplete="username" minlength="3">
+                            <small class="form-help">Minimum 3 characters</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-email">Email Address</label>
+                            <input type="email" id="register-email" name="email" required autocomplete="email">
+                        </div>
+                        <div class="form-group">
+                            <label for="register-password">Password</label>
+                            <input type="password" id="register-password" name="password" required autocomplete="new-password" minlength="6">
+                            <small class="form-help">Minimum 6 characters</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm-password">Confirm Password</label>
+                            <input type="password" id="confirm-password" name="confirmPassword" required autocomplete="new-password">
+                        </div>
+                        <div class="form-group">
+                            <label for="registration-code">Registration Code</label>
+                            <input type="password" id="registration-code" name="registrationCode" required>
+                            <small class="form-help">Contact administrator for registration code</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full admin-register-btn">
+                            <span>Create Admin Account</span>
+                        </button>
+                    </form>
+                    
+                    <div id="admin-register-error" class="error-message"></div>
+                    <div id="admin-register-success" class="success-message"></div>
+                    
+                    <div class="admin-footer">
+                        <p>Registration requires a valid registration code from the system administrator.</p>
+                        <div class="auth-toggle">
+                            <button type="button" id="show-login-btn" class="link-btn">
+                                Already have an account? Login here
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Panel -->
+                <div id="admin-dashboard-panel" class="admin-panel" style="display: none;">
+                    <div class="dashboard-header">
+                        <div class="dashboard-title">
+                            <h2>Analytics Dashboard</h2>
+                            <div class="dashboard-status">
+                                <span class="status-indicator active">Live Data</span>
+                                <span class="last-updated">Last updated: <span id="last-update-time">--</span></span>
+                            </div>
+                        </div>
+                        <div class="dashboard-actions">
+                            <button id="refresh-data-btn" class="btn btn-secondary">
+                                <span>🔄 Refresh</span>
+                            </button>
+                            <button id="admin-logout-btn" class="btn btn-secondary">
+                                <span>Logout</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <!-- Site Visits Card -->
+                        <div class="dashboard-card enterprise-card">
+                            <div class="card-header">
+                                <h3>📊 Site Visits</h3>
+                                <span class="card-period">Last 30 Days</span>
+                            </div>
+                            <div class="card-content">
+                                <div id="visits-chart" class="chart-container">
+                                    <div class="loading-spinner"></div>
+                                    <span>Loading visits data...</span>
+                                </div>
+                                <div id="visits-summary" class="data-summary"></div>
+                            </div>
+                        </div>
+
+                        <!-- Service Inquiries Card -->
+                        <div class="dashboard-card enterprise-card">
+                            <div class="card-header">
+                                <h3>📋 Service Inquiries</h3>
+                                <span class="card-period">All Time</span>
+                            </div>
+                            <div class="card-content">
+                                <div id="inquiries-chart" class="chart-container">
+                                    <div class="loading-spinner"></div>
+                                    <span>Loading inquiries data...</span>
+                                </div>
+                                <div id="inquiries-summary" class="data-summary"></div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Stats Card -->
+                        <div class="dashboard-card enterprise-card">
+                            <div class="card-header">
+                                <h3>⚡ Quick Stats</h3>
+                                <span class="card-period">Overview</span>
+                            </div>
+                            <div class="card-content">
+                                <div id="quick-stats" class="quick-stats-grid">
+                                    <div class="stat-item">
+                                        <span class="stat-number" id="total-inquiries">--</span>
+                                        <span class="stat-label">Total Inquiries</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-number" id="new-inquiries">--</span>
+                                        <span class="stat-label">New Today</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-number" id="response-rate">--</span>
+                                        <span class="stat-label">Response Rate</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-number" id="avg-response-time">--</span>
+                                        <span class="stat-label">Avg Response</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- System Status Card -->
+                        <div class="dashboard-card enterprise-card">
+                            <div class="card-header">
+                                <h3>🔧 System Status</h3>
+                                <span class="card-period">Real-time</span>
+                            </div>
+                            <div class="card-content">
+                                <div class="system-status">
+                                    <div class="status-item">
+                                        <span class="status-indicator active"></span>
+                                        <span>Database Connection</span>
+                                        <span class="status-value">Online</span>
+                                    </div>
+                                    <div class="status-item">
+                                        <span class="status-indicator active"></span>
+                                        <span>API Services</span>
+                                        <span class="status-value">Operational</span>
+                                    </div>
+                                    <div class="status-item">
+                                        <span class="status-indicator active"></span>
+                                        <span>Email Service</span>
+                                        <span class="status-value">Active</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Inquiries Card -->
+                        <div class="dashboard-card enterprise-card full-width">
+                            <div class="card-header">
+                                <h3>📨 Recent Inquiries</h3>
+                                <div class="card-actions">
+                                    <span class="card-period">Latest Submissions</span>
+                                    <button class="btn btn-primary btn-sm" id="export-inquiries-btn">
+                                        <span>📥 Export</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div id="recent-inquiries" class="inquiries-table">
+                                    <div class="loading-spinner"></div>
+                                    <span>Loading recent inquiries...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="admin-footer-section">
+        <div class="container">
+            <div class="admin-footer-content">
+                <p>&copy; 2024 MB Construction. Admin Dashboard v2.0</p>
+                <p>Secure • Monitored • Professional</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

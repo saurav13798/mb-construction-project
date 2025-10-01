@@ -1,10 +1,401 @@
-// MB Construction - Premium Website JavaScript
+// MB Construction - Professional Website JavaScript with Performance Optimization
+
+// Performance Monitoring and Core Web Vitals
+class PerformanceMonitor {
+    constructor() {
+        this.metrics = {
+            lcp: null,
+            fid: null,
+            cls: null,
+            ttfb: null,
+            fcp: null
+        };
+        
+        this.thresholds = {
+            lcp: 2500,    // 2.5 seconds
+            fid: 100,     // 100 milliseconds
+            cls: 0.1,     // 0.1 cumulative score
+            ttfb: 800,    // 800 milliseconds
+            fcp: 1800     // 1.8 seconds
+        };
+        
+        this.initPerformanceTracking();
+    }
+    
+    initPerformanceTracking() {
+        // Track Core Web Vitals
+        this.trackLCP();
+        this.trackFID();
+        this.trackCLS();
+        this.trackTTFB();
+        this.trackFCP();
+        
+        // Track resource loading
+        this.trackResourceTiming();
+        
+        // Report metrics after page load
+        window.addEventListener('load', () => {
+            setTimeout(() => this.reportMetrics(), 1000);
+        });
+    }
+    
+    trackLCP() {
+        if ('PerformanceObserver' in window) {
+            new PerformanceObserver((entryList) => {
+                const entries = entryList.getEntries();
+                const lastEntry = entries[entries.length - 1];
+                this.metrics.lcp = lastEntry.startTime;
+                this.checkThreshold('lcp', lastEntry.startTime);
+            }).observe({ entryTypes: ['largest-contentful-paint'] });
+        }
+    }
+    
+    trackFID() {
+        if ('PerformanceObserver' in window) {
+            new PerformanceObserver((entryList) => {
+                const firstInput = entryList.getEntries()[0];
+                if (firstInput) {
+                    const fid = firstInput.processingStart - firstInput.startTime;
+                    this.metrics.fid = fid;
+                    this.checkThreshold('fid', fid);
+                }
+            }).observe({ entryTypes: ['first-input'] });
+        }
+    }
+    
+    trackCLS() {
+        if ('PerformanceObserver' in window) {
+            let clsValue = 0;
+            new PerformanceObserver((entryList) => {
+                for (const entry of entryList.getEntries()) {
+                    if (!entry.hadRecentInput) {
+                        clsValue += entry.value;
+                    }
+                }
+                this.metrics.cls = clsValue;
+                this.checkThreshold('cls', clsValue);
+            }).observe({ entryTypes: ['layout-shift'] });
+        }
+    }
+    
+    trackTTFB() {
+        if ('PerformanceObserver' in window) {
+            new PerformanceObserver((entryList) => {
+                const [navigationEntry] = entryList.getEntries();
+                const ttfb = navigationEntry.responseStart - navigationEntry.requestStart;
+                this.metrics.ttfb = ttfb;
+                this.checkThreshold('ttfb', ttfb);
+            }).observe({ entryTypes: ['navigation'] });
+        }
+    }
+    
+    trackFCP() {
+        if ('PerformanceObserver' in window) {
+            new PerformanceObserver((entryList) => {
+                const entries = entryList.getEntries();
+                const fcpEntry = entries.find(entry => entry.name === 'first-contentful-paint');
+                if (fcpEntry) {
+                    this.metrics.fcp = fcpEntry.startTime;
+                    this.checkThreshold('fcp', fcpEntry.startTime);
+                }
+            }).observe({ entryTypes: ['paint'] });
+        }
+    }
+    
+    trackResourceTiming() {
+        window.addEventListener('load', () => {
+            const resources = performance.getEntriesByType('resource');
+            const slowResources = resources.filter(resource => resource.duration > 1000);
+            
+            if (slowResources.length > 0) {
+                console.warn('🐌 Slow loading resources detected:', slowResources.map(r => ({
+                    name: r.name.split('/').pop(),
+                    duration: Math.round(r.duration) + 'ms',
+                    size: r.transferSize ? Math.round(r.transferSize / 1024) + 'KB' : 'unknown'
+                })));
+            }
+        });
+    }
+    
+    checkThreshold(metric, value) {
+        const threshold = this.thresholds[metric];
+        const status = value <= threshold ? '✅' : '⚠️';
+        const color = value <= threshold ? 'color: green' : 'color: orange';
+        
+        console.log(`%c${status} ${metric.toUpperCase()}: ${Math.round(value)}${metric === 'cls' ? '' : 'ms'} (threshold: ${threshold}${metric === 'cls' ? '' : 'ms'})`, color);
+    }
+    
+    reportMetrics() {
+        console.group('📊 Performance Metrics Report');
+        console.log('Core Web Vitals:', this.metrics);
+        
+        // Calculate performance score
+        const score = this.calculatePerformanceScore();
+        console.log(`%c🎯 Performance Score: ${score}/100`, score >= 90 ? 'color: green; font-weight: bold' : score >= 70 ? 'color: orange; font-weight: bold' : 'color: red; font-weight: bold');
+        
+        // Show performance badge in development
+        if (window.location.hostname === 'localhost') {
+            this.showPerformanceBadge(score);
+        }
+        
+        console.groupEnd();
+    }
+    
+    showPerformanceBadge(score) {
+        const badge = document.createElement('div');
+        badge.className = 'performance-badge';
+        badge.innerHTML = `⚡ ${score}/100`;
+        
+        if (score >= 90) {
+            badge.classList.add('good');
+        } else if (score >= 70) {
+            badge.classList.add('needs-improvement');
+        } else {
+            badge.classList.add('poor');
+        }
+        
+        // Add click handler to show detailed metrics
+        badge.addEventListener('click', () => {
+            console.group('📊 Detailed Performance Metrics');
+            console.table(this.metrics);
+            console.groupEnd();
+        });
+        
+        badge.title = 'Click to view detailed metrics';
+        document.body.appendChild(badge);
+        
+        // Remove after 10 seconds
+        setTimeout(() => {
+            if (badge.parentElement) {
+                badge.style.opacity = '0';
+                badge.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => badge.remove(), 500);
+            }
+        }, 10000);
+    }
+    
+    calculatePerformanceScore() {
+        let score = 100;
+        
+        // Deduct points for poor metrics
+        if (this.metrics.lcp > this.thresholds.lcp) score -= 20;
+        if (this.metrics.fid > this.thresholds.fid) score -= 15;
+        if (this.metrics.cls > this.thresholds.cls) score -= 15;
+        if (this.metrics.ttfb > this.thresholds.ttfb) score -= 10;
+        if (this.metrics.fcp > this.thresholds.fcp) score -= 10;
+        
+        return Math.max(0, score);
+    }
+}
+
+// Resource Loading Manager
+class ResourceManager {
+    constructor() {
+        this.criticalResources = new Set();
+        this.deferredResources = new Set();
+        this.loadedResources = new Set();
+        
+        this.initResourceManagement();
+    }
+    
+    initResourceManagement() {
+        this.preloadCriticalAssets();
+        this.setupLazyLoading();
+        this.optimizeImageLoading();
+    }
+    
+    preloadCriticalAssets() {
+        const criticalAssets = [
+            { type: 'font', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap', crossorigin: 'anonymous' },
+            { type: 'image', href: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&h=1080&fit=crop&q=80' }
+        ];
+        
+        criticalAssets.forEach(asset => this.preloadAsset(asset));
+    }
+    
+    preloadAsset(asset) {
+        if (this.criticalResources.has(asset.href)) return;
+        
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = asset.type === 'font' ? 'style' : asset.type;
+        link.href = asset.href;
+        
+        if (asset.crossorigin) {
+            link.crossOrigin = asset.crossorigin;
+        }
+        
+        if (asset.type === 'font') {
+            link.onload = () => {
+                const styleLink = document.createElement('link');
+                styleLink.rel = 'stylesheet';
+                styleLink.href = asset.href;
+                document.head.appendChild(styleLink);
+            };
+        }
+        
+        document.head.appendChild(link);
+        this.criticalResources.add(asset.href);
+    }
+    
+    setupLazyLoading() {
+        // Lazy load non-critical CSS
+        const nonCriticalCSS = document.querySelectorAll('link[rel="preload"][as="style"]');
+        nonCriticalCSS.forEach(link => {
+            link.addEventListener('load', () => {
+                link.rel = 'stylesheet';
+            });
+        });
+    }
+    
+    optimizeImageLoading() {
+        // Add loading="lazy" to images below the fold
+        const images = document.querySelectorAll('img');
+        images.forEach((img, index) => {
+            if (index > 2) { // Skip first 3 images (likely above the fold)
+                img.loading = 'lazy';
+                img.decoding = 'async';
+            }
+        });
+    }
+}
+
+// Image Optimization System
+class ImageOptimizer {
+    constructor() {
+        this.supportsWebP = this.checkWebPSupport();
+        this.supportsAVIF = this.checkAVIFSupport();
+        this.lazyImages = new Set();
+        
+        this.initImageOptimization();
+    }
+    
+    checkWebPSupport() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 1;
+        canvas.height = 1;
+        return canvas.toDataURL('image/webp').indexOf('webp') > -1;
+    }
+    
+    checkAVIFSupport() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 1;
+        canvas.height = 1;
+        return canvas.toDataURL('image/avif').indexOf('avif') > -1;
+    }
+    
+    initImageOptimization() {
+        this.setupIntersectionObserver();
+        this.optimizeExistingImages();
+        this.addImageErrorHandling();
+    }
+    
+    setupIntersectionObserver() {
+        if ('IntersectionObserver' in window) {
+            this.imageObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        this.loadImage(entry.target);
+                        this.imageObserver.unobserve(entry.target);
+                    }
+                });
+            }, {
+                rootMargin: '50px 0px',
+                threshold: 0.01
+            });
+        }
+    }
+    
+    optimizeExistingImages() {
+        const images = document.querySelectorAll('img[data-src], img[loading="lazy"]');
+        images.forEach(img => {
+            if (img.dataset.src) {
+                this.lazyImages.add(img);
+                if (this.imageObserver) {
+                    this.imageObserver.observe(img);
+                }
+            }
+            
+            // Add blur-to-sharp transition
+            if (!img.complete) {
+                img.style.filter = 'blur(5px)';
+                img.style.transition = 'filter 0.3s ease';
+                
+                img.addEventListener('load', () => {
+                    img.style.filter = 'none';
+                });
+            }
+        });
+    }
+    
+    loadImage(img) {
+        if (img.dataset.src) {
+            // Create optimized image URL
+            const optimizedSrc = this.getOptimizedImageUrl(img.dataset.src);
+            
+            // Preload the image
+            const imageLoader = new Image();
+            imageLoader.onload = () => {
+                img.src = optimizedSrc;
+                img.classList.add('loaded');
+                img.style.filter = 'none';
+            };
+            
+            imageLoader.onerror = () => {
+                // Fallback to original image
+                img.src = img.dataset.src;
+                img.classList.add('error');
+            };
+            
+            imageLoader.src = optimizedSrc;
+        }
+    }
+    
+    getOptimizedImageUrl(originalUrl) {
+        // If using Unsplash, add format optimization
+        if (originalUrl.includes('unsplash.com')) {
+            const url = new URL(originalUrl);
+            if (this.supportsAVIF) {
+                url.searchParams.set('fm', 'avif');
+            } else if (this.supportsWebP) {
+                url.searchParams.set('fm', 'webp');
+            }
+            url.searchParams.set('q', '85'); // Optimize quality
+            return url.toString();
+        }
+        
+        return originalUrl;
+    }
+    
+    addImageErrorHandling() {
+        document.addEventListener('error', (e) => {
+            if (e.target.tagName === 'IMG') {
+                console.warn('Image failed to load:', e.target.src);
+                e.target.classList.add('image-error');
+                
+                // Add placeholder or retry logic here
+                if (!e.target.dataset.retried) {
+                    e.target.dataset.retried = 'true';
+                    setTimeout(() => {
+                        e.target.src = e.target.src; // Retry loading
+                    }, 2000);
+                }
+            }
+        }, true);
+    }
+}
+
+// Initialize performance systems
+const performanceMonitor = new PerformanceMonitor();
+const resourceManager = new ResourceManager();
+const imageOptimizer = new ImageOptimizer();
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 MB Construction - Professional Website Initialized');
+    
     // Initialize all components
     initWelcomeScreen();
     initNavigation();
-    initThemeToggle();
     initHero();
     initAnimations();
     initForms();
@@ -12,56 +403,28 @@ document.addEventListener('DOMContentLoaded', function() {
     initScrollEffects();
     initCounters();
     
-    // ...existing code...
+    // Performance optimization
+    optimizePageLoad();
 });
 
-// Welcome Screen Animation
+// Welcome Screen Animation - Faster
 function initWelcomeScreen() {
     const welcomeScreen = document.getElementById('welcome-screen');
     
     if (welcomeScreen) {
-        // Hide welcome screen after 3 seconds
+        // Hide welcome screen after 1.5 seconds (faster)
         setTimeout(() => {
             welcomeScreen.classList.add('hidden');
             // Enable body scroll after welcome screen
             document.body.style.overflow = 'auto';
-        }, 3000);
+        }, 1500);
         
         // Disable body scroll during welcome screen
         document.body.style.overflow = 'hidden';
     }
 }
 
-// Theme Toggle Functionality
-function initThemeToggle() {
-    const themeToggle = document.getElementById('theme-toggle');
-    const themeIcon = themeToggle.querySelector('.theme-icon');
-    
-    // Get saved theme or default to dark
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    updateThemeIcon(savedTheme);
-    
-    themeToggle.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        updateThemeIcon(newTheme);
-        
-        // Add a subtle animation
-        themeToggle.style.transform = 'scale(0.9)';
-        setTimeout(() => {
-            themeToggle.style.transform = 'scale(1)';
-        }, 150);
-    });
-    
-    function updateThemeIcon(theme) {
-        themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
-        themeToggle.setAttribute('aria-label', `Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`);
-    }
-}
+// Theme functionality removed - using dark theme only for better performance
 
 // Navigation Functionality
 function initNavigation() {
@@ -165,7 +528,7 @@ function initHero() {
     });
 }
 
-// Animation System
+// Enhanced Animation System
 function initAnimations() {
     // Intersection Observer for scroll animations
     const observerOptions = {
@@ -178,9 +541,21 @@ function initAnimations() {
             if (entry.isIntersecting) {
                 entry.target.classList.add('scroll-reveal');
                 
-                // Trigger counter animation for stat cards
-                if (entry.target.classList.contains('stat-card')) {
+                // Trigger heading animations
+                if (entry.target.classList.contains('heading-animated')) {
+                    entry.target.classList.add('in-view');
+                }
+                
+                // Trigger counter animation for achievement cards
+                if (entry.target.classList.contains('achievement-item') || entry.target.classList.contains('stat-card')) {
                     animateCounter(entry.target);
+                }
+                
+                // Trigger staggered animations for children
+                if (entry.target.classList.contains('stagger-children') || 
+                    entry.target.classList.contains('stagger-fast') || 
+                    entry.target.classList.contains('stagger-slow')) {
+                    triggerStaggeredAnimation(entry.target);
                 }
                 
                 // Unobserve after animation
@@ -191,15 +566,45 @@ function initAnimations() {
     
     // Observe elements for animation
     const animatedElements = document.querySelectorAll(`
+        .fade-in,
+        .slide-up,
+        .slide-down,
+        .slide-left,
+        .slide-right,
+        .scale-up,
+        .scale-down,
         .service-card,
         .project-card,
         .testimonial-card,
+        .achievement-card,
         .stat-card,
         .contact-card,
-        .glass-card
+        .glass-card,
+        .heading-animated,
+        .stagger-children,
+        .stagger-fast,
+        .stagger-slow
     `);
     
     animatedElements.forEach(el => observer.observe(el));
+}
+
+// Staggered Animation Trigger
+function triggerStaggeredAnimation(container) {
+    const children = Array.from(container.children);
+    children.forEach((child, index) => {
+        // Set stagger index if not already set
+        if (!child.style.getPropertyValue('--stagger-index')) {
+            child.style.setProperty('--stagger-index', index);
+        }
+        
+        // Add animation classes if they don't exist
+        if (!child.classList.contains('fade-in') && 
+            !child.classList.contains('slide-up') && 
+            !child.classList.contains('scale-up')) {
+            child.classList.add('fade-in');
+        }
+    });
 }
 
 // Counter Animation
@@ -208,21 +613,44 @@ function initCounters() {
 }
 
 function animateCounter(card) {
-    const numberElement = card.querySelector('.stat-number');
+    // Look for different types of number elements
+    const numberElement = card.querySelector('.stat-number') || 
+                         card.querySelector('.achievement-number') ||
+                         card.querySelector('[data-target]');
+    
     if (!numberElement) return;
     
-    const target = parseInt(numberElement.getAttribute('data-target'));
+    // Get target from data attribute or text content
+    let target;
+    if (numberElement.hasAttribute('data-target')) {
+        target = parseInt(numberElement.getAttribute('data-target'));
+    } else {
+        // Extract number from text content (handles cases like "150+", "₹500+", "98%")
+        const text = numberElement.textContent;
+        const match = text.match(/(\d+)/);
+        if (match) {
+            target = parseInt(match[1]);
+        } else {
+            return; // No number found
+        }
+    }
+    
     const duration = 2000; // 2 seconds
     const increment = target / (duration / 16); // 60fps
     let current = 0;
     
+    // Store original text format
+    const originalText = numberElement.textContent;
+    const prefix = originalText.match(/^[^\d]*/)?.[0] || '';
+    const suffix = originalText.match(/[^\d]*$/)?.[0] || '';
+    
     const updateCounter = () => {
         current += increment;
         if (current < target) {
-            numberElement.textContent = Math.floor(current);
+            numberElement.textContent = prefix + Math.floor(current) + suffix;
             requestAnimationFrame(updateCounter);
         } else {
-            numberElement.textContent = target + '+';
+            numberElement.textContent = prefix + target + suffix;
         }
     };
     
@@ -374,7 +802,7 @@ async function handleFormSubmit(e) {
     };
     
     try {
-        // Use environment-aware API URL
+        // Use environment-aware API URL with error handling
         const apiUrl = window.location.hostname === 'localhost' 
             ? 'http://localhost:3000' 
             : window.location.origin;
@@ -409,9 +837,13 @@ async function handleFormSubmit(e) {
     } catch (error) {
         console.error('❌ Form submission error:', error);
         
-        // Use the enhanced error handler if available
+        // Use the enhanced error handler
         if (window.errorHandler) {
-            window.errorHandler.handleApiError(error, { form });
+            window.errorHandler.handleApiError(error, { 
+                form: form.id,
+                formData: Object.fromEntries(formData.entries()),
+                timestamp: new Date().toISOString()
+            });
         } else {
             showErrorMessage('Failed to send message. Please try again or contact us directly.');
         }
@@ -931,6 +1363,182 @@ function improveAccessibility() {
         heroSection.setAttribute('id', 'main-content');
     }
 }
+
+// Page Load Optimization
+function optimizePageLoad() {
+    // Remove unused CSS classes after page load
+    setTimeout(() => {
+        removeUnusedStyles();
+    }, 3000);
+    
+    // Optimize font loading
+    optimizeFontLoading();
+    
+    // Setup critical resource hints
+    setupResourceHints();
+}
+
+function removeUnusedStyles() {
+    // This would typically be done by a build tool, but we can do basic cleanup
+    const unusedSelectors = ['.unused-class', '.old-style'];
+    unusedSelectors.forEach(selector => {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(el => el.classList.remove(selector.substring(1)));
+    });
+}
+
+function optimizeFontLoading() {
+    // Ensure font-display: swap is working
+    const fontFaces = document.fonts;
+    if (fontFaces) {
+        fontFaces.ready.then(() => {
+            console.log('✅ Fonts loaded successfully');
+            document.body.classList.add('fonts-loaded');
+        });
+    }
+}
+
+function setupResourceHints() {
+    // Add DNS prefetch for external domains
+    const externalDomains = [
+        'fonts.googleapis.com',
+        'fonts.gstatic.com',
+        'images.unsplash.com'
+    ];
+    
+    externalDomains.forEach(domain => {
+        const link = document.createElement('link');
+        link.rel = 'dns-prefetch';
+        link.href = `//${domain}`;
+        document.head.appendChild(link);
+    });
+}
+
+// Enhanced Error Handling
+class ErrorHandler {
+    constructor() {
+        this.errors = [];
+        this.initGlobalErrorHandling();
+    }
+    
+    initGlobalErrorHandling() {
+        // Catch JavaScript errors
+        window.addEventListener('error', (event) => {
+            this.logError('JavaScript Error', {
+                message: event.message,
+                filename: event.filename,
+                lineno: event.lineno,
+                colno: event.colno,
+                stack: event.error?.stack,
+                timestamp: new Date().toISOString()
+            });
+        });
+        
+        // Catch unhandled promise rejections
+        window.addEventListener('unhandledrejection', (event) => {
+            this.logError('Unhandled Promise Rejection', {
+                reason: event.reason,
+                promise: event.promise,
+                timestamp: new Date().toISOString()
+            });
+        });
+        
+        // Catch resource loading errors
+        document.addEventListener('error', (event) => {
+            if (event.target !== window) {
+                this.logError('Resource Loading Error', {
+                    element: event.target.tagName,
+                    source: event.target.src || event.target.href,
+                    timestamp: new Date().toISOString()
+                });
+            }
+        }, true);
+    }
+    
+    logError(type, details) {
+        const error = { type, details };
+        this.errors.push(error);
+        
+        // Log to console in development
+        if (window.location.hostname === 'localhost') {
+            console.error(`❌ ${type}:`, details);
+        }
+        
+        // In production, you would send this to your error tracking service
+        // this.sendToErrorService(error);
+    }
+    
+    handleApiError(error, context = {}) {
+        const errorInfo = {
+            type: 'API Error',
+            message: error.message,
+            status: error.status,
+            url: error.url,
+            context: context,
+            timestamp: new Date().toISOString()
+        };
+        
+        this.logError(errorInfo.type, errorInfo);
+        this.showUserFriendlyError(error);
+    }
+    
+    showUserFriendlyError(error) {
+        const errorMessages = {
+            404: 'The requested resource was not found.',
+            500: 'Server error. Please try again later.',
+            'network': 'Network connection error. Please check your internet connection.',
+            'timeout': 'Request timed out. Please try again.',
+            'default': 'An unexpected error occurred. Please try again.'
+        };
+        
+        const message = errorMessages[error.status] || 
+                       errorMessages[error.type] || 
+                       errorMessages.default;
+        
+        this.displayErrorNotification(message);
+    }
+    
+    displayErrorNotification(message) {
+        // Create and show error notification
+        const notification = document.createElement('div');
+        notification.className = 'error-notification';
+        notification.innerHTML = `
+            <div class="notification-content">
+                <span class="notification-icon">⚠️</span>
+                <span class="notification-message">${message}</span>
+                <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
+            </div>
+        `;
+        
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(239, 68, 68, 0.95);
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 10000;
+            max-width: 400px;
+            animation: slideInRight 0.3s ease;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }
+        }, 5000);
+    }
+}
+
+// Initialize error handling
+const errorHandler = new ErrorHandler();
+window.errorHandler = errorHandler;
 
 // Initialize accessibility improvements
 improveAccessibility();

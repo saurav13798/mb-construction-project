@@ -10,14 +10,14 @@ const { body } = require('express-validator');
 router.post('/register', [
   body('username').trim().isLength({ min: 3, max: 50 }),
   body('email').optional().trim().isEmail().normalizeEmail(),
-  body('password').isLength({ min: 8 }),
+  body('password').isLength({ min: 6 }),
   body('registrationCode').isString()
 ], adminController.register);
 
 // Admin login route (no auth required)
 router.post('/login', [
   body('username').trim().notEmpty(),
-  body('password').isLength({ min: 8 })
+  body('password').isLength({ min: 6 })
 ], adminController.login);
 
 // Get total visits grouped by day (last 30 days)

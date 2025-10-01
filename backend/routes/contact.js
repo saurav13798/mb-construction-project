@@ -29,7 +29,7 @@ const contactValidation = [
   body('phone')
     .optional()
     .trim()
-    .matches(/^[\+]?[\d\s\-\(\)]{7,20}$/)
+    .matches(/^[\+]?[\d\s\-\(\)\.]{7,20}$/)
     .withMessage('Please provide a valid phone number'),
 
   body('company')

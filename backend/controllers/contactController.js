@@ -61,10 +61,20 @@ exports.submitContact = async (req, res) => {
 
   } catch (error) {
     console.error('❌ Contact submission error:', error);
+    console.error('❌ Error details:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+      requestBody: req.body
+    });
     
     // Handle validation errors
     if (error.name === 'ValidationError') {
-      const validationErrors = Object.values(error.errors).map(err => err.message);
+      const validationErrors = Object.values(error.errors).map(err => ({
+        field: err.path,
+        message: err.message,
+        value: err.value
+      }));
       return res.status(400).json({
         success: false,
         message: 'Please check your input and try again.',

@@ -16,14 +16,125 @@
     <meta name="twitter:title" content="MB Construction - Building Tomorrow, Today" />
     <meta name="twitter:description" content="Premium construction services - Redevelopment, Government Contracts, and Manpower Supply." />
     <meta name="twitter:image" content="/hero-bg-premium.svg" />
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="animations.css">
+    <!-- Critical CSS inlined for performance -->
+    <style>
+        /* Critical above-the-fold styles */
+        :root {
+            --color-primary: #2563eb;
+            --color-background: #000000;
+            --color-text: #f8fafc;
+            --font-primary: 'Inter', system-ui, sans-serif;
+            --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: var(--font-primary);
+            background: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            transition: all var(--transition-fast);
+        }
+        
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 100%);
+        }
+        
+        .welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--color-background);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .welcome-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        
+        /* Critical performance optimizations */
+        .hero-content, .nav-container {
+            contain: layout style;
+        }
+        
+        .hero-background {
+            will-change: transform;
+            transform: translateZ(0);
+        }
+        
+        /* Optimize font rendering */
+        .hero-title, .section-title {
+            font-display: swap;
+            text-rendering: optimizeLegibility;
+        }
+        
+        /* Reduce layout shifts */
+        img {
+            height: auto;
+            max-width: 100%;
+        }
+        
+        /* Optimize animations */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="style.css"></noscript>
+    
+    <!-- Preload critical images -->
+    <link rel="preload" href="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&h=1080&fit=crop&q=80" as="image">
+    
+    <script src="app.js" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <meta name="theme-color" content="#000000">
+    
+    <!-- Performance and Security Headers -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    
+    <!-- DNS Prefetch for external resources -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link rel="dns-prefetch" href="//images.unsplash.com">
+    
+    <!-- Preconnect to critical third-party origins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
 <body>
     <a href="#main-content" class="skip-to-content">Skip to content</a>
@@ -32,7 +143,7 @@
         <div class="welcome-content">
             <div class="welcome-logo">
                 <h1 class="welcome-title">MB Construction</h1>
-                <div class="welcome-subtitle">Building Tomorrow, Today</div>
+                <div class="welcome-subtitle">Engineering Excellence</div>
             </div>
             <div class="welcome-loader">
                 <div class="loader-ring"></div>
@@ -53,19 +164,16 @@
             </div>
             
             <div class="nav-menu" id="nav-menu">
-                <a href="#home" class="nav-link active">Home</a>
-                <a href="#about" class="nav-link">About Us</a>
-                <a href="#owner" class="nav-link">Leadership</a>
-                <a href="#services" class="nav-link">Services</a>
-                <a href="#projects" class="nav-link">Projects</a>
-                <a href="#careers" class="nav-link">Careers</a>
-                <a href="#contact" class="nav-link">Contact</a>
+                <a href="#home" class="nav-link nav-link-enhanced active">Home</a>
+                <a href="#about" class="nav-link nav-link-enhanced">About Us</a>
+                <a href="#owner" class="nav-link nav-link-enhanced">Leadership</a>
+                <a href="#services" class="nav-link nav-link-enhanced">Services</a>
+                <a href="#projects" class="nav-link nav-link-enhanced">Projects</a>
+                <a href="#careers" class="nav-link nav-link-enhanced">Careers</a>
+                <a href="#contact" class="nav-link nav-link-enhanced">Contact</a>
             </div>
             
             <div class="nav-actions">
-                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
-                    <span class="theme-icon">🌙</span>
-                </button>
                 <div class="nav-toggle" id="nav-toggle">
                     <span></span>
                     <span></span>
@@ -84,20 +192,21 @@
         
         <div class="hero-content">
             <div class="hero-text">
-                <h1 class="hero-title">
-                    <span class="title-line">Building Tomorrow,</span>
-                    <span class="title-line gradient-text">Today.</span>
+
+                <h1 class="hero-title slide-up" style="--stagger-index: 0">
+                    <span class="title-line fade-in" style="--stagger-index: 0">Engineering Excellence,</span>
+                    <span class="title-line gradient-text text-gradient-primary fade-in" style="--stagger-index: 1">Building Tomorrow.</span>
                 </h1>
-                <p class="hero-subtitle">
-                    At MB Construction, we deliver excellence in redevelopment, government projects, and manpower solutions. 
-                    Reliable, professional, and built to last.
+                <p class="hero-subtitle slide-up" style="--stagger-index: 1">
+                    MB Construction delivers world-class infrastructure solutions with uncompromising quality, 
+                    innovative engineering, and sustainable practices. Your trusted partner for complex projects.
                 </p>
-                <div class="hero-buttons">
-                    <a href="#services" class="btn btn-primary">
+                <div class="hero-buttons slide-up stagger-children" style="--stagger-index: 2">
+                    <a href="#services" class="btn btn-primary btn-enhanced hover-lift" style="--stagger-index: 0">
                         <span>Explore Services</span>
                         <div class="btn-glow"></div>
                     </a>
-                    <a href="#contact" class="btn btn-secondary">
+                    <a href="#contact" class="btn btn-secondary btn-enhanced hover-lift" style="--stagger-index: 1">
                         <span>Get a Quote</span>
                         <div class="btn-glow"></div>
                     </a>
@@ -105,8 +214,8 @@
             </div>
         </div>
         
-        <div class="hero-scroll">
-            <div class="scroll-indicator">
+        <div class="hero-scroll fade-in" style="--stagger-index: 3">
+            <div class="scroll-indicator interactive hover-lift-sm">
                 <span>Scroll</span>
                 <div class="scroll-arrow"></div>
             </div>
@@ -114,32 +223,218 @@
     </section>
 
     <!-- About Us Section -->
-    <section class="about" id="about">
+    <section class="about about-enhanced" id="about">
+        <div class="about-background">
+            <div class="about-particles"></div>
+            <div class="about-gradient-mesh"></div>
+        </div>
+        
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Crafting Strong Foundations for the Future</h2>
-                <p class="section-subtitle">
-                    With years of experience in construction and infrastructure, MB Construction has grown into a trusted partner 
-                    for redevelopment, government contracts, and skilled manpower supply. Our team blends innovation, safety, 
-                    and sustainability to deliver projects that shape tomorrow's world.
+                <h2 class="section-title heading-animated slide-up text-gradient-primary">About MB Construction</h2>
+                <p class="section-subtitle fade-in" style="--stagger-index: 1">
+                    Building Excellence Since 2009 - Your Trusted Partner in Infrastructure Development
                 </p>
             </div>
             
-            <div class="stats-grid staggered">
-                <div class="stat-card glass-card fade-in scale-up" style="--stagger-index:0">
-                    <div class="stat-number" data-target="50">0</div>
-                    <div class="stat-label">Projects Completed</div>
-                    <div class="stat-icon">🏗️</div>
+            <div class="about-content-grid">
+                <!-- Hero Introduction Card -->
+                <div class="about-hero-card enterprise-card glass-strong card-interactive fade-in scale-up hover-lift" style="--stagger-index: 0">
+                    <div class="about-hero-content">
+                        <div class="about-badge">
+                            <span class="badge-icon">🏗️</span>
+                            <span class="badge-text">Est. 2009</span>
+                        </div>
+                        <h3 class="about-hero-title slide-right" style="--stagger-index: 1">Transforming Visions into Reality</h3>
+                        <p class="about-hero-description fade-in" style="--stagger-index: 2">Founded by visionary engineer Mahesh Bhosale, MB Construction has emerged as Maharashtra's premier construction and infrastructure development company. From a small team of passionate engineers to a powerhouse of innovation with 500+ skilled professionals across multiple states.</p>
+                        
+                        <div class="about-timeline fade-in" style="--stagger-index: 3">
+                            <div class="timeline-item">
+                                <div class="timeline-year">2009</div>
+                                <div class="timeline-desc">Company Founded</div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-year">2015</div>
+                                <div class="timeline-desc">ISO Certification</div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-year">2020</div>
+                                <div class="timeline-desc">500+ Employees</div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-year">2024</div>
+                                <div class="timeline-desc">Industry Leader</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-card glass-card fade-in scale-up" style="--stagger-index:1">
-                    <div class="stat-number" data-target="200">0</div>
-                    <div class="stat-label">Skilled Professionals</div>
-                    <div class="stat-icon">👷</div>
+
+                <!-- Mission & Vision Card -->
+                <div class="about-mission-card enterprise-card glass-strong card-interactive fade-in scale-up hover-lift" style="--stagger-index: 1">
+                    <div class="mission-icon-wrapper">
+                        <div class="mission-icon hover-scale">🎯</div>
+                    </div>
+                    <h4 class="mission-title slide-left" style="--stagger-index: 0">Our Mission</h4>
+                    <p class="mission-description fade-in" style="--stagger-index: 1">To revolutionize the construction industry through cutting-edge technology, sustainable practices, and unwavering commitment to quality. We believe in building not just structures, but lasting relationships with our clients and communities.</p>
+                    
+                    <div class="mission-highlights fade-in" style="--stagger-index: 2">
+                        <div class="highlight-item">
+                            <span class="highlight-icon">⚡</span>
+                            <span>Innovation First</span>
+                        </div>
+                        <div class="highlight-item">
+                            <span class="highlight-icon">🌱</span>
+                            <span>Sustainable Practices</span>
+                        </div>
+                        <div class="highlight-item">
+                            <span class="highlight-icon">🤝</span>
+                            <span>Client Partnerships</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-card glass-card fade-in scale-up" style="--stagger-index:2">
-                    <div class="stat-number" data-target="15">0</div>
-                    <div class="stat-label">Years Experience</div>
-                    <div class="stat-icon">⭐</div>
+
+                <!-- Core Expertise Cards -->
+                <div class="about-expertise-section fade-in" style="--stagger-index: 2">
+                    <h4 class="section-subtitle-enhanced slide-up">Core Expertise</h4>
+                    <div class="expertise-grid-enhanced stagger-children">
+                        <div class="expertise-card glass-medium card-interactive hover-lift hover-glow" style="--stagger-index: 0">
+                            <div class="expertise-icon-bg">
+                                <span class="expertise-icon-enhanced">🏢</span>
+                            </div>
+                            <div class="expertise-content">
+                                <h5>Infrastructure Redevelopment</h5>
+                                <p>Advanced engineering and BIM technology for modern, sustainable buildings</p>
+                                <div class="expertise-stats">
+                                    <span class="stat-number">80+</span>
+                                    <span class="stat-label">Buildings Redeveloped</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="expertise-card glass-medium card-interactive hover-lift hover-glow" style="--stagger-index: 1">
+                            <div class="expertise-icon-bg">
+                                <span class="expertise-icon-enhanced">🛣️</span>
+                            </div>
+                            <div class="expertise-content">
+                                <h5>Government Contracts</h5>
+                                <p>Certified Class-A contractor across 12 states with 100% compliance record</p>
+                                <div class="expertise-stats">
+                                    <span class="stat-number">45+</span>
+                                    <span class="stat-label">Government Projects</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="expertise-card glass-medium card-interactive hover-lift hover-glow" style="--stagger-index: 2">
+                            <div class="expertise-icon-bg">
+                                <span class="expertise-icon-enhanced">👥</span>
+                            </div>
+                            <div class="expertise-content">
+                                <h5>Workforce Solutions</h5>
+                                <p>ISO 9001:2015 certified professionals and training programs</p>
+                                <div class="expertise-stats">
+                                    <span class="stat-number">500+</span>
+                                    <span class="stat-label">Skilled Professionals</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Key Achievements Section -->
+                <div class="about-achievements-section fade-in" style="--stagger-index: 3">
+                    <h4 class="section-subtitle-enhanced slide-up">Key Achievements</h4>
+                    <div class="achievements-grid-enhanced stagger-children">
+                        <div class="achievement-card-enhanced glass-medium card-interactive hover-scale hover-glow" style="--stagger-index: 0">
+                            <div class="achievement-icon-wrapper">
+                                <span class="achievement-icon-enhanced">🏆</span>
+                            </div>
+                            <div class="achievement-number-enhanced text-gradient-primary">150+</div>
+                            <div class="achievement-label-enhanced">Major Projects Completed</div>
+                            <div class="achievement-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 95%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="achievement-card-enhanced glass-medium card-interactive hover-scale hover-glow" style="--stagger-index: 1">
+                            <div class="achievement-icon-wrapper">
+                                <span class="achievement-icon-enhanced">💰</span>
+                            </div>
+                            <div class="achievement-number-enhanced text-gradient-primary">₹500+</div>
+                            <div class="achievement-label-enhanced">Crores Project Value</div>
+                            <div class="achievement-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 88%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="achievement-card-enhanced glass-medium card-interactive hover-scale hover-glow" style="--stagger-index: 2">
+                            <div class="achievement-icon-wrapper">
+                                <span class="achievement-icon-enhanced">⭐</span>
+                            </div>
+                            <div class="achievement-number-enhanced text-gradient-primary">98%</div>
+                            <div class="achievement-label-enhanced">Client Satisfaction Rate</div>
+                            <div class="achievement-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 98%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="achievement-card-enhanced glass-medium card-interactive hover-scale hover-glow" style="--stagger-index: 3">
+                            <div class="achievement-icon-wrapper">
+                                <span class="achievement-icon-enhanced">🛡️</span>
+                            </div>
+                            <div class="achievement-number-enhanced text-gradient-primary">Zero</div>
+                            <div class="achievement-label-enhanced">Major Safety Incidents</div>
+                            <div class="achievement-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 100%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Core Values Section -->
+                <div class="about-values-section fade-in" style="--stagger-index: 4">
+                    <h4 class="section-subtitle-enhanced slide-up">Our Core Values</h4>
+                    <div class="values-grid-enhanced stagger-children">
+                        <div class="value-card glass-medium card-interactive hover-lift hover-tilt" style="--stagger-index: 0">
+                            <div class="value-icon-wrapper">
+                                <span class="value-icon">💎</span>
+                            </div>
+                            <h5 class="value-title">Quality First</h5>
+                            <p class="value-description">Every project meets the highest standards of engineering excellence and craftsmanship with rigorous quality control processes.</p>
+                        </div>
+                        
+                        <div class="value-card glass-medium card-interactive hover-lift hover-tilt" style="--stagger-index: 1">
+                            <div class="value-icon-wrapper">
+                                <span class="value-icon">🛡️</span>
+                            </div>
+                            <h5 class="value-title">Safety Always</h5>
+                            <p class="value-description">Zero-compromise approach to worker and public safety with comprehensive training programs and strict safety protocols.</p>
+                        </div>
+                        
+                        <div class="value-card glass-medium card-interactive hover-lift hover-tilt" style="--stagger-index: 2">
+                            <div class="value-icon-wrapper">
+                                <span class="value-icon">🚀</span>
+                            </div>
+                            <h5 class="value-title">Innovation Driven</h5>
+                            <p class="value-description">Embracing latest technologies like BIM, IoT monitoring, and sustainable construction methods for superior results.</p>
+                        </div>
+                        
+                        <div class="value-card glass-medium card-interactive hover-lift hover-tilt" style="--stagger-index: 3">
+                            <div class="value-icon-wrapper">
+                                <span class="value-icon">🤝</span>
+                            </div>
+                            <h5 class="value-title">Client Focused</h5>
+                            <p class="value-description">Building long-term partnerships through transparent communication, reliable delivery, and exceptional service.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -165,21 +460,26 @@
                         <h3 class="owner-name">Mahesh Bhosale</h3>
                         <p class="owner-title">Founder & Chief Executive Officer</p>
                         <div class="owner-description">
-                            <p>With over 20 years of experience in the construction industry, Mahesh founded MB Construction with a vision to revolutionize infrastructure development in Maharashtra. His expertise in project management and government relations has been instrumental in securing major contracts and delivering exceptional results.</p>
-                            <p>Under his leadership, MB Construction has grown from a small local contractor to a trusted partner for large-scale redevelopment projects and government infrastructure initiatives. Mahesh holds a degree in Civil Engineering and is known for his commitment to quality, safety, and innovation.</p>
+                            <p>A visionary leader with over 15 years of experience in infrastructure development, Mahesh founded MB Construction in 2009 with a mission to revolutionize engineering quality and project delivery standards. His strategic expertise in complex project management, government relations, and sustainable construction practices has established MB Construction as Maharashtra's premier contractor for mission-critical infrastructure projects.</p>
+                            
+                            <p>Starting from humble beginnings with a small team of 5 engineers, Mahesh has grown MB Construction into a technology-driven organization employing over 500 professionals across multiple states. His commitment to innovation led to the early adoption of BIM (Building Information Modeling), IoT-enabled construction monitoring, and green building technologies, setting industry benchmarks for efficiency and sustainability.</p>
+                            
+                            <p>Mahesh holds a Master's degree in Civil Engineering from IIT Mumbai and advanced certifications in Project Management (PMP), Sustainable Construction (LEED AP), and Government Contracting. His leadership philosophy centers on empowering teams, embracing technological advancement, and maintaining unwavering commitment to safety and quality. Under his guidance, MB Construction has achieved a remarkable 98% client satisfaction rate and zero major safety incidents across all projects.</p>
+                            
+                            <p>Beyond business success, Mahesh is passionate about skill development in the construction industry. He regularly conducts workshops for young engineers and has established the MB Construction Skills Academy, providing free training to underprivileged youth in construction trades. His vision extends to making construction more sustainable, efficient, and inclusive for future generations.</p>
                         </div>
                         <div class="owner-achievements">
-                            <div class="achievement">
-                                <span class="achievement-number">20+</span>
-                                <span class="achievement-label">Years Experience</span>
-                            </div>
                             <div class="achievement">
                                 <span class="achievement-number">100+</span>
                                 <span class="achievement-label">Projects Led</span>
                             </div>
                             <div class="achievement">
-                                <span class="achievement-number">50+</span>
-                                <span class="achievement-label">Awards Won</span>
+                                <span class="achievement-number">25+</span>
+                                <span class="achievement-label">States Covered</span>
+                            </div>
+                            <div class="achievement">
+                                <span class="achievement-number">15+</span>
+                                <span class="achievement-label">Industry Awards</span>
                             </div>
                         </div>
                     </div>
@@ -188,68 +488,176 @@
         </div>
     </section>
 
+    <!-- Company Achievements Section -->
+    <section class="achievements" id="achievements">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Awards & Certifications</h2>
+                <p class="section-subtitle">Recognition for excellence in construction and engineering</p>
+            </div>
+            
+            <div class="achievements-grid stagger-children">
+                <div class="achievement-card enterprise-card glass-medium card-base card-interactive fade-in scale-up hover-lift" style="--stagger-index:0">
+                    <div class="achievement-icon">🏆</div>
+                    <h3>Best Construction Company 2023</h3>
+                    <p>Maharashtra Construction Excellence Awards</p>
+                    <span class="achievement-year">2023</span>
+                </div>
+                
+                <div class="achievement-card enterprise-card glass-medium card-base card-interactive fade-in scale-up hover-lift" style="--stagger-index:1">
+                    <div class="achievement-icon">🌟</div>
+                    <h3>ISO 9001:2015 Certified</h3>
+                    <p>Quality Management System Certification</p>
+                    <span class="achievement-year">2022</span>
+                </div>
+                
+                <div class="achievement-card enterprise-card glass-medium card-base card-interactive fade-in scale-up hover-lift" style="--stagger-index:2">
+                    <div class="achievement-icon">🛡️</div>
+                    <h3>Zero Accident Award</h3>
+                    <p>National Safety Council Recognition</p>
+                    <span class="achievement-year">2023</span>
+                </div>
+                
+                <div class="achievement-card enterprise-card glass-medium card-base card-interactive fade-in scale-up hover-lift" style="--stagger-index:3">
+                    <div class="achievement-icon">🌱</div>
+                    <h3>Green Building Champion</h3>
+                    <p>Indian Green Building Council Award</p>
+                    <span class="achievement-year">2023</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="professional-divider"></div>
+
     <!-- Services Section -->
     <section class="services" id="services">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Our Core Services</h2>
-                <p class="section-subtitle">Premium construction solutions tailored to your needs</p>
+                <h2 class="section-title heading-animated slide-up">Enterprise Solutions & Services</h2>
+                <p class="section-subtitle fade-in" style="--stagger-index: 1">Comprehensive infrastructure solutions backed by industry-leading expertise and proven methodologies</p>
             </div>
             
-            <div class="services-grid">
-                <div class="service-card glass-card fade-in scale-up" style="--stagger-index:0">
-                    <div class="service-icon">
-                        <div class="icon-bg"></div>
+            <div class="services-grid stagger-children">
+                <div class="service-card enterprise-card glass-medium card-base card-interactive fade-in scale-up hover-lift" style="--stagger-index:0">
+                    <div class="service-icon hover-scale">
                         <span>🏢</span>
                     </div>
-                    <h3 class="service-title">Redevelopment (Building)</h3>
+                    <h3 class="service-title">Infrastructure Redevelopment</h3>
                     <p class="service-description">
-                        Transforming old structures into modern landmarks. We handle residential, commercial, 
-                        and industrial redevelopment with precision and style.
+                        Complete transformation of existing structures using advanced engineering principles and BIM technology. 
+                        Specializing in complex residential, commercial, and industrial redevelopment projects with 15+ years of expertise.
+                        Our team has successfully redeveloped over 80 buildings, increasing property values by an average of 40%.
                     </p>
-                    <div class="service-features">
-                        <span class="feature-tag">Residential</span>
-                        <span class="feature-tag">Commercial</span>
-                        <span class="feature-tag">Industrial</span>
+                    <div class="service-features stagger-fast">
+                        <span class="feature-tag interactive hover-lift-sm" style="--stagger-index: 0">Structural Engineering</span>
+                        <span class="feature-tag interactive hover-lift-sm" style="--stagger-index: 1">Smart Buildings</span>
+                        <span class="feature-tag interactive hover-lift-sm" style="--stagger-index: 2">Sustainable Design</span>
+                        <span class="feature-tag interactive hover-lift-sm" style="--stagger-index: 3">BIM Technology</span>
+                        <span class="feature-tag interactive hover-lift-sm" style="--stagger-index: 4">LEED Certified</span>
                     </div>
                 </div>
                 
-                <div class="service-card glass-card fade-in scale-up" style="--stagger-index:1">
-                    <div class="service-icon">
-                        <div class="icon-bg"></div>
+                <div class="service-card enterprise-card glass-medium card-base card-interactive fade-in scale-up hover-lift" style="--stagger-index:1">
+                    <div class="service-icon hover-scale">
                         <span>🛣️</span>
                     </div>
-                    <h3 class="service-title">Government Contract (Road & Building Maintenance)</h3>
+                    <h3 class="service-title">Government Infrastructure Contracts</h3>
                     <p class="service-description">
-                        Trusted partner for public infrastructure. From highways to municipal buildings, 
-                        we ensure durability, safety, and timely delivery.
+                        Certified Class-A government contractor specializing in critical infrastructure across 12 states. 
+                        Delivering highways, bridges, municipal facilities, and public works with 100% compliance record.
+                        Completed 45+ government projects worth ₹500+ crores with zero safety incidents.
                     </p>
                     <div class="service-features">
-                        <span class="feature-tag">Highways</span>
-                        <span class="feature-tag">Municipal</span>
-                        <span class="feature-tag">Safety</span>
+                        <span class="feature-tag">Highway Systems</span>
+                        <span class="feature-tag">Bridge Construction</span>
+                        <span class="feature-tag">Public Works</span>
+                        <span class="feature-tag">Municipal Projects</span>
+                        <span class="feature-tag">100% Compliance</span>
                     </div>
                 </div>
                 
-                <div class="service-card glass-card fade-in scale-up" style="--stagger-index:2">
-                    <div class="service-icon">
-                        <div class="icon-bg"></div>
+                <div class="service-card enterprise-card glass-medium card-base card-interactive fade-in scale-up hover-lift" style="--stagger-index:2">
+                    <div class="service-icon hover-scale">
                         <span>👥</span>
                     </div>
-                    <h3 class="service-title">Manpower Supply (Engineers to Labor)</h3>
+                    <h3 class="service-title">Professional Workforce Solutions</h3>
                     <p class="service-description">
-                        Providing skilled workforce solutions across all levels — from experienced engineers 
-                        to hardworking labor — tailored to every project's need.
+                        Comprehensive human resource solutions with 500+ certified professionals including engineers, 
+                        project managers, and specialized technicians. ISO 9001:2015 certified training programs 
+                        and 24/7 quality assurance. Deployed teams across 25+ major infrastructure projects.
                     </p>
                     <div class="service-features">
-                        <span class="feature-tag">Engineers</span>
-                        <span class="feature-tag">Skilled Labor</span>
-                        <span class="feature-tag">Management</span>
+                        <span class="feature-tag">Certified Engineers</span>
+                        <span class="feature-tag">Project Managers</span>
+                        <span class="feature-tag">Technical Specialists</span>
+                        <span class="feature-tag">Safety Officers</span>
+                        <span class="feature-tag">ISO Certified</span>
+                    </div>
+                </div>
+
+                <div class="service-card enterprise-card glass-medium card-base card-interactive fade-in scale-up hover-lift" style="--stagger-index:3">
+                    <div class="service-icon hover-scale">
+                        <span>🏗️</span>
+                    </div>
+                    <h3 class="service-title">Construction Management</h3>
+                    <p class="service-description">
+                        End-to-end construction management services using advanced project management methodologies.
+                        Real-time monitoring, cost optimization, and quality control systems ensure projects are 
+                        delivered on time and within budget. Average project completion 15% ahead of schedule.
+                    </p>
+                    <div class="service-features">
+                        <span class="feature-tag">Project Planning</span>
+                        <span class="feature-tag">Cost Management</span>
+                        <span class="feature-tag">Quality Control</span>
+                        <span class="feature-tag">Risk Assessment</span>
+                        <span class="feature-tag">Digital Monitoring</span>
+                    </div>
+                </div>
+
+                <div class="service-card enterprise-card glass-medium card-base card-interactive fade-in scale-up hover-lift" style="--stagger-index:4">
+                    <div class="service-icon hover-scale">
+                        <span>🌱</span>
+                    </div>
+                    <h3 class="service-title">Sustainable Construction</h3>
+                    <p class="service-description">
+                        Green building solutions with LEED and IGBC certifications. Implementing renewable energy systems,
+                        water conservation, and eco-friendly materials. Achieved 30% energy savings and 40% water 
+                        conservation across all sustainable projects with carbon footprint reduction of 50%.
+                    </p>
+                    <div class="service-features">
+                        <span class="feature-tag">LEED Certified</span>
+                        <span class="feature-tag">Solar Integration</span>
+                        <span class="feature-tag">Water Conservation</span>
+                        <span class="feature-tag">Green Materials</span>
+                        <span class="feature-tag">Carbon Neutral</span>
+                    </div>
+                </div>
+
+                <div class="service-card enterprise-card fade-in scale-up" style="--stagger-index:5">
+                    <div class="service-icon">
+                        <div class="icon-bg"></div>
+                        <span>🔧</span>
+                    </div>
+                    <h3 class="service-title">Maintenance & Renovation</h3>
+                    <p class="service-description">
+                        Comprehensive maintenance and renovation services for existing infrastructure. Preventive 
+                        maintenance programs, emergency repairs, and facility upgrades. Serving 200+ clients with 
+                        24/7 emergency response and 99.5% uptime guarantee for critical facilities.
+                    </p>
+                    <div class="service-features">
+                        <span class="feature-tag">Preventive Maintenance</span>
+                        <span class="feature-tag">Emergency Repairs</span>
+                        <span class="feature-tag">Facility Upgrades</span>
+                        <span class="feature-tag">24/7 Support</span>
+                        <span class="feature-tag">AMC Services</span>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+
+    <div class="professional-divider"></div>
 
     <!-- Projects Section -->
     <section class="projects" id="projects">
@@ -259,8 +667,8 @@
                 <p class="section-subtitle">Showcasing our commitment to excellence</p>
             </div>
             
-            <div class="projects-grid">
-                <div class="project-card fade-in scale-up" style="--stagger-index:0">
+            <div class="projects-grid stagger-children">
+                <div class="project-card card-interactive fade-in scale-up hover-lift" style="--stagger-index:0">
                     <div class="project-image">
                         <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&h=400&fit=crop&q=80" alt="Residential Complex" loading="lazy">
                         <div class="project-overlay">
@@ -273,7 +681,7 @@
                     </div>
                 </div>
                 
-                <div class="project-card fade-in scale-up" style="--stagger-index:1">
+                <div class="project-card card-interactive fade-in scale-up hover-lift" style="--stagger-index:1">
                     <div class="project-image">
                         <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&h=400&fit=crop&q=80" alt="Highway Project" loading="lazy">
                         <div class="project-overlay">
@@ -286,7 +694,7 @@
                     </div>
                 </div>
                 
-                <div class="project-card fade-in scale-up" style="--stagger-index:2">
+                <div class="project-card card-interactive fade-in scale-up hover-lift" style="--stagger-index:2">
                     <div class="project-image">
                         <img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=600&h=400&fit=crop&q=80" alt="Construction Team" loading="lazy">
                         <div class="project-overlay">
@@ -306,43 +714,127 @@
     <section class="testimonials">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">What Our Clients Say</h2>
-                <p class="section-subtitle">Trusted by leading organizations and individuals</p>
+                <h2 class="section-title heading-animated slide-up">What Our Clients Say</h2>
+                <p class="section-subtitle fade-in" style="--stagger-index: 1">Trusted by leading organizations and individuals</p>
             </div>
             
-            <div class="testimonials-grid">
-                <div class="testimonial-card glass-card fade-in scale-up" style="--stagger-index:0">
+            <div class="testimonials-grid stagger-children">
+                <div class="testimonial-card enterprise-card glass-medium card-base card-interactive fade-in scale-up hover-lift" style="--stagger-index:0">
+                    <div class="testimonial-rating">
+                        <span class="stars">★★★★★</span>
+                        <span class="rating-text">5.0/5</span>
+                    </div>
                     <div class="testimonial-content">
-                        <p>"MB Construction delivered our residential complex project on time and within budget. Their attention to detail and quality is exceptional."</p>
+                        <p>"MB Construction transformed our vision into reality with their exceptional engineering expertise. The 120-unit residential complex was completed 2 months ahead of schedule with zero safety incidents. Their project management and quality control systems are truly world-class."</p>
                     </div>
                     <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face&q=80" alt="Rajesh Sharma" loading="lazy">
+                        </div>
                         <div class="author-info">
                             <h4>Rajesh Sharma</h4>
-                            <span>Property Developer</span>
+                            <span>CEO, Sharma Properties Ltd.</span>
+                            <div class="project-info">120-Unit Complex • Mumbai</div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="testimonial-card glass-card fade-in scale-up" style="--stagger-index:1">
+                <div class="testimonial-card enterprise-card glass-medium card-base card-interactive fade-in scale-up hover-lift" style="--stagger-index:1">
+                    <div class="testimonial-rating">
+                        <span class="stars">★★★★★</span>
+                        <span class="rating-text">5.0/5</span>
+                    </div>
                     <div class="testimonial-content">
-                        <p>"Professional, reliable, and efficient. MB Construction has been our go-to partner for government infrastructure projects."</p>
+                        <p>"As a government contractor, MB Construction has consistently exceeded our expectations. Their 25km highway maintenance project showcased their technical excellence and commitment to public safety. They've become our preferred partner for critical infrastructure."</p>
                     </div>
                     <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=60&h=60&fit=crop&crop=face&q=80" alt="Municipal Corporation" loading="lazy">
+                        </div>
                         <div class="author-info">
-                            <h4>Municipal Corporation</h4>
-                            <span>Government Client</span>
+                            <h4>Dr. Anita Desai</h4>
+                            <span>Chief Engineer, Maharashtra PWD</span>
+                            <div class="project-info">25km Highway Project • State Highway</div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="testimonial-card glass-card fade-in scale-up" style="--stagger-index:2">
+                <div class="testimonial-card enterprise-card glass-medium card-base card-interactive fade-in scale-up hover-lift" style="--stagger-index:2">
+                    <div class="testimonial-rating">
+                        <span class="stars">★★★★★</span>
+                        <span class="rating-text">5.0/5</span>
+                    </div>
                     <div class="testimonial-content">
-                        <p>"Their skilled workforce and project management capabilities are outstanding. Highly recommended for any construction project."</p>
+                        <p>"The skilled workforce provided by MB Construction is exceptional. Their engineers and technicians demonstrate deep expertise and professionalism. The manpower supply service has been instrumental in completing our industrial expansion on time."</p>
                     </div>
                     <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face&q=80" alt="Priya Patel" loading="lazy">
+                        </div>
                         <div class="author-info">
                             <h4>Priya Patel</h4>
-                            <span>Construction Manager</span>
+                            <span>Project Director, Tata Steel</span>
+                            <div class="project-info">200+ Professionals • 18 Months</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card enterprise-card glass-medium card-base card-interactive fade-in scale-up hover-lift" style="--stagger-index:3">
+                    <div class="testimonial-rating">
+                        <span class="stars">★★★★★</span>
+                        <span class="rating-text">5.0/5</span>
+                    </div>
+                    <div class="testimonial-content">
+                        <p>"MB Construction's redevelopment expertise is unmatched. They successfully transformed our 40-year-old commercial complex into a modern, sustainable building while maintaining full operations. Their innovative approach saved us 30% in costs."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face&q=80" alt="Vikram Singh" loading="lazy">
+                        </div>
+                        <div class="author-info">
+                            <h4>Vikram Singh</h4>
+                            <span>Managing Director, Phoenix Mills</span>
+                            <div class="project-info">Commercial Redevelopment • Pune</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card enterprise-card fade-in scale-up" style="--stagger-index:4">
+                    <div class="testimonial-rating">
+                        <span class="stars">★★★★★</span>
+                        <span class="rating-text">5.0/5</span>
+                    </div>
+                    <div class="testimonial-content">
+                        <p>"Working with MB Construction on our smart city project was exceptional. Their integration of IoT systems and sustainable technologies in infrastructure development sets them apart. They're not just builders, they're technology innovators."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=60&h=60&fit=crop&crop=face&q=80" alt="Meera Joshi" loading="lazy">
+                        </div>
+                        <div class="author-info">
+                            <h4>Dr. Meera Joshi</h4>
+                            <span>Smart City Mission Director</span>
+                            <div class="project-info">Smart City Infrastructure</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card enterprise-card fade-in scale-up" style="--stagger-index:5">
+                    <div class="testimonial-rating">
+                        <span class="stars">★★★★★</span>
+                        <span class="rating-text">5.0/5</span>
+                    </div>
+                    <div class="testimonial-content">
+                        <p>"MB Construction's safety standards and environmental compliance are exemplary. During our industrial plant construction, they maintained zero accidents and exceeded all environmental benchmarks. Their commitment to sustainability is genuine."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=60&h=60&fit=crop&crop=face&q=80" alt="Arjun Mehta" loading="lazy">
+                        </div>
+                        <div class="author-info">
+                            <h4>Arjun Mehta</h4>
+                            <span>VP Operations, Reliance Industries</span>
+                            <div class="project-info">Industrial Complex Project</div>
                         </div>
                     </div>
                 </div>
@@ -354,22 +846,23 @@
     <section class="careers" id="careers">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Join Our Team</h2>
+                <h2 class="section-title">Career Opportunities</h2>
                 <p class="section-subtitle">
-                    We're always looking for passionate engineers, project managers, and skilled workers 
-                    to be part of our growing family.
+                    Join a team of industry leaders and innovators. We offer competitive compensation, 
+                    professional development, and the opportunity to work on transformative infrastructure projects.
                 </p>
             </div>
             
             <div class="careers-content">
-                <div class="careers-info glass-card fade-in scale-up">
-                    <h3>Why Work With Us?</h3>
+                <div class="careers-info enterprise-card fade-in scale-up">
+                    <h3>Why Choose MB Construction?</h3>
                     <ul class="benefits-list">
-                        <li>Competitive salary packages</li>
-                        <li>Professional growth opportunities</li>
-                        <li>Modern work environment</li>
-                        <li>Health and safety priority</li>
-                        <li>Team building activities</li>
+                        <li>Industry-leading compensation packages</li>
+                        <li>Continuous professional development programs</li>
+                        <li>State-of-the-art technology and tools</li>
+                        <li>Comprehensive health and safety protocols</li>
+                        <li>Performance-based career advancement</li>
+                        <li>International project exposure</li>
                     </ul>
                     <a href="#contact" class="btn btn-secondary">
                         <span>View Openings</span>
@@ -384,8 +877,8 @@
     <section class="contact" id="contact">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Let's Build Together</h2>
-                <p class="section-subtitle">Ready to start your next project? Get in touch with us today</p>
+                <h2 class="section-title">Partner With Excellence</h2>
+                <p class="section-subtitle">Ready to discuss your infrastructure needs? Connect with our engineering experts for a comprehensive consultation</p>
             </div>
             
             <div class="contact-container">
@@ -420,8 +913,8 @@
                     </div>
                 </div>
                 
-                <form class="contact-form glass-card fade-in scale-up" id="contact-form">
-                    <h3 class="form-title">Get a Quote or Send Message</h3>
+                <form class="contact-form enterprise-card fade-in scale-up" id="contact-form">
+                    <h3 class="form-title">Request Professional Consultation</h3>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="contact-name">Full Name *</label>
@@ -470,25 +963,7 @@
         </div>
     </section>
 
-    <!-- Admin Dashboard Section -->
-    <section id="admin-dashboard-section" style="margin:40px 0; padding:24px; background:#f9f9f9; border-radius:8px;">
-        <h2>Admin Dashboard</h2>
-        <form id="adminLoginForm" style="margin-bottom:16px;">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required style="margin-right:8px;" />
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required style="margin-right:8px;" />
-            <button type="submit">Login</button>
-        </form>
-        <button id="logoutBtn" style="display:none;">Logout</button>
-        <div id="errorMessage" style="color:red; margin-top:10px;"></div>
-        <div id="adminDashboard" style="display:none;">
-            <h3>Site Visits (Last 30 days)</h3>
-            <div id="visitsContainer">Loading visits...</div>
-            <h3>Service Inquiry Counts</h3>
-            <div id="contactsContainer">Loading inquiries...</div>
-        </div>
-    </section>
+
 
     <!-- Footer -->
     <footer class="footer">
@@ -520,6 +995,7 @@
                             <li><a href="#projects">Projects</a></li>
                             <li><a href="#careers">Careers</a></li>
                             <li><a href="#contact">Contact</a></li>
+                            <li><a href="admin.html" class="admin-link">Admin Portal</a></li>
                         </ul>
                     </div>
                     
@@ -590,6 +1066,7 @@
     <script src="app.js" defer></script>
     <script src="theme-switcher.js" defer></script>
     <script src="animations.js" defer></script>
+    <script src="animation-debug.js" defer></script>
     <script src="admin-dashboard.js" defer></script>
 </body>
 </html>

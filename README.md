@@ -5,6 +5,7 @@ A professional, responsive website for MB Construction company specializing in b
 ## 🏗️ Features
 
 ### Frontend
+
 - **Responsive Design**: Mobile-first approach with seamless adaptation to all screen sizes
 - **Modern UI/UX**: Clean, professional design with smooth animations and transitions
 - **Single Page Application**: Smooth scrolling navigation between sections
@@ -14,6 +15,7 @@ A professional, responsive website for MB Construction company specializing in b
 - **Performance Optimized**: Fast loading times with lazy loading and optimized assets
 
 ### Backend
+
 - **RESTful API**: Built with Node.js and Express.js
 - **MongoDB Integration**: Robust database for contact management and project storage
 - **Security Features**: Rate limiting, CORS protection, input validation, and sanitization
@@ -22,6 +24,7 @@ A professional, responsive website for MB Construction company specializing in b
 - **Email Integration**: Automated email notifications for contact form submissions
 
 ### Core Services Highlighted
+
 1. **Building Redevelopment**: Complete renovation and modernization services
 2. **Government Contract Maintenance**: Road and building maintenance for government projects
 3. **Manpower Supply**: Skilled workforce from engineers to laborers
@@ -29,18 +32,21 @@ A professional, responsive website for MB Construction company specializing in b
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js (v14 or higher)
 - MongoDB (Community Edition)
 
 ### ⚡ **Super Easy Setup (Recommended)**
 
 **First Time Setup:**
+
 ```bash
 # Double-click or run:
 setup.bat
 ```
 
 **Alternative Setup Methods:**
+
 ```bash
 # NPM script method
 npm run setup
@@ -54,6 +60,7 @@ npm run db:seed
 ### 🎮 **Daily Usage**
 
 **Start Full Application:**
+
 ```bash
 # Interactive menu
 start.bat  # optimized: detects deps, logs to logs/ folder
@@ -64,11 +71,12 @@ start.bat full
 ```
 
 **Development Mode:**
+
 ```bash
 # Backend only
 start.bat backend
 
-# Frontend only  
+# Frontend only
 start.bat frontend
 
 # Database operations
@@ -76,11 +84,13 @@ start.bat db
 ```
 
 ### 🌐 **Access Points**
+
 - **Frontend**: http://localhost:8080
 - **Backend API**: http://localhost:3000
 - **Health Check**: http://localhost:3000/health
 
 ### 🧾 Logs & Monitoring
+
 - Backend logs: `logs/backend.log`
 - Frontend logs: `logs/frontend.log`
 - **Enhanced Error Tracking**: All errors include request IDs and context
@@ -119,6 +129,7 @@ mb-construction-website/
 ## 🧪 Testing & Verification
 
 ### Run API Tests (Backend)
+
 ```bash
 cd backend
 npm install
@@ -126,24 +137,29 @@ npm test
 ```
 
 ### Run Enhanced Error Handling Tests
+
 ```bash
 cd backend
 npm test -- enhanced-error-handling.test.js
 ```
 
 ### Verify Project Setup
+
 ```bash
 npm run verify
 ```
 
 ### Security Validation
+
 The application automatically validates security configurations on startup:
+
 - JWT secret strength (minimum 32 characters)
 - Email configuration completeness
 - CORS settings validation
 - Database connection security
 
 ### Manual Testing
+
 - Test contact form submission with error scenarios
 - Verify mobile responsiveness
 - Check API endpoints error responses
@@ -153,11 +169,13 @@ The application automatically validates security configurations on startup:
 ## 📊 API Endpoints
 
 ### Public Endpoints
+
 - `GET /health` - Health check
 - `POST /api/contact` - Submit contact form
 - `GET /api/projects` - Get public projects
 
 ### Admin Endpoints (Authentication Required)
+
 - `GET /api/contact` - Get all contacts
 - `PUT /api/contact/:id/status` - Update contact status
 - `POST /api/contact/:id/notes` - Add internal notes
@@ -188,6 +206,7 @@ The application automatically validates security configurations on startup:
 ## 🔧 Environment Configuration
 
 ### Development
+
 ```env
 NODE_ENV=development
 PORT=3000
@@ -197,6 +216,7 @@ FRONTEND_URL=http://localhost:8080
 ```
 
 ### Production
+
 ```env
 NODE_ENV=production
 PORT=3000
@@ -217,18 +237,21 @@ FRONTEND_URL=https://yourdomain.com
 ## 🚀 Deployment Options
 
 ### Traditional Hosting
+
 1. Upload files to server
 2. Install Node.js and MongoDB
 3. Configure environment variables
 4. Start with PM2 or similar process manager
 
 ### Cloud Deployment
+
 - **Heroku**: Ready for Heroku deployment
 - **DigitalOcean**: App Platform compatible
 - **AWS**: EC2 or Elastic Beanstalk
 - **Vercel**: Frontend deployment
 
 ### Docker (Optional)
+
 ```bash
 docker-compose up -d
 ```
@@ -236,12 +259,15 @@ docker-compose up -d
 ## 📞 Business Information
 
 ### Services Offered
+
 1. **Building Redevelopment**
+
    - Complete renovation services
    - Modern design implementation
    - Structural improvements
 
 2. **Government Contract Maintenance**
+
    - Road maintenance projects
    - Building maintenance contracts
    - Infrastructure development
@@ -252,6 +278,7 @@ docker-compose up -d
    - Project management staff
 
 ### Contact Information
+
 - **Email**: info@mbconstruction.com
 - **Phone**: +91 98765 43210
 - **Address**: Mumbai, Maharashtra, India
@@ -261,20 +288,24 @@ docker-compose up -d
 ### Common Issues
 
 1. **MongoDB Connection Error**
+
    ```bash
    # Check if MongoDB is running
    net start MongoDB  # Windows
    sudo systemctl start mongod  # Linux
    ```
+
    The enhanced database manager will automatically retry connections with exponential backoff.
 
 2. **Port Already in Use**
+
    ```bash
    # Kill process using port 3000
    npx kill-port 3000
    ```
 
 3. **Dependencies Issues**
+
    ```bash
    # Clean install
    rm -rf node_modules package-lock.json
@@ -282,12 +313,14 @@ docker-compose up -d
    ```
 
 4. **Frontend Not Loading**
+
    - Clear browser cache
    - Check console for errors (enhanced error handler provides detailed logs)
    - Verify file paths
    - Check network connectivity (automatic detection included)
 
 5. **Security Configuration Warnings**
+
    - **JWT_SECRET too short**: Generate a secure 32+ character secret
    - **Email placeholder values**: Replace with actual credentials
    - **Localhost in production**: Update FRONTEND_URL for production
@@ -308,6 +341,7 @@ docker-compose up -d
 ## 🤝 Support
 
 For technical support or business inquiries:
+
 - Create an issue in the repository
 - Contact via email: info@mbconstruction.com
 - Phone support: +91 98765 43210

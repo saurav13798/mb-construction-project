@@ -3,8 +3,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const themeToggle = document.getElementById('theme-toggle');
     const themeIcon = themeToggle.querySelector('.theme-icon');
     
-    // Available themes
-    const themes = ['dark', 'light', 'blue'];
+    // Available themes (removed blue theme)
+    const themes = ['dark', 'light'];
     
     // Check for saved theme preference or use default
     const savedTheme = localStorage.getItem('theme') || 'dark';
@@ -45,7 +45,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Set icon based on theme
                 let icon = '🌙'; // dark
                 if (theme === 'light') icon = '☀️';
-                if (theme === 'blue') icon = '🔵';
                 
                 themeOption.innerHTML = `<span class="theme-icon">${icon}</span><span>${theme.charAt(0).toUpperCase() + theme.slice(1)}</span>`;
                 
@@ -124,15 +123,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update toggle icon
         let icon = '🌙'; // dark
         if (theme === 'light') icon = '☀️';
-        if (theme === 'blue') icon = '🔵';
         themeIcon.textContent = icon;
         
         // Update meta theme-color for mobile browsers
         const metaThemeColor = document.querySelector('meta[name="theme-color"]');
         if (metaThemeColor) {
-            let color = '#000000'; // dark
-            if (theme === 'light') color = '#1e293b';
-            if (theme === 'blue') color = '#0f172a';
+            let color = '#0c0c0c'; // dark
+            if (theme === 'light') color = '#fafafa';
             metaThemeColor.setAttribute('content', color);
         }
         

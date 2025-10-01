@@ -25,7 +25,13 @@ exports.register = async (req, res) => {
     return res.status(201).json({ success: true, data: { id: admin._id, username: admin.username } });
   } catch (err) {
     console.error('Admin registration error:', err);
-    return res.status(500).json({ success: false, message: 'Failed to register admin' });
+    console.error('Registration error details:', {
+      name: err.name,
+      message: err.message,
+      stack: err.stack,
+      requestBody: { ...req.body, password: '[REDACTED]' }
+    });
+    return res.status(500).json({ success: false, message: 'Failed to register admin', error: err.message });
   }
 };
 

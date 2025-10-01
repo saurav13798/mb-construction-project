@@ -8,7 +8,7 @@ const path = require('path');
 const EnvironmentValidator = require('./config/env-validation');
 const databaseManager = require('./utils/database-manager');
 const trackVisit = require('./middleware/visitTracker');
-const { notFound, errorHandler, asyncHandler } = require('./middleware/enhanced-error-middleware');
+const errorHandler = require('./middleware/enhanced-error-middleware');
 
 // Validate environment variables first
 const envValidator = new EnvironmentValidator();
@@ -46,7 +46,11 @@ app.use(limiter);
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:8080',
+  origin: [
+    process.env.FRONTEND_URL || 'http://localhost:8080',
+    'http://localhost:3000', // Allow same-origin requests when frontend is served from same server
+    'http://127.0.0.1:3000'  // Allow localhost variations
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -73,7 +77,7 @@ databaseManager.connect(process.env.MONGODB_URI)
   });
 
 // Enhanced health check endpoint
-app.get('/health', asyncHandler(async (req, res) => {
+app.get('/health', errorHandler.asyncHandler(async (req, res) => {
   const dbHealth = await databaseManager.healthCheck();
   const configSummary = envValidator.getConfigurationSummary();
   
@@ -88,27 +92,7 @@ app.get('/health', asyncHandler(async (req, res) => {
   });
 }));
 
-// Serve frontend static files (prefer `dist/` when available)
-const publicDir = path.join(__dirname, '..', 'frontend', 'dist');
-const fallbackPublicDir = path.join(__dirname, '..', 'frontend', 'public');
-const staticDirToUse = require('fs').existsSync(publicDir) ? publicDir : fallbackPublicDir;
-
-app.use(express.static(staticDirToUse, {
-  etag: true,
-  lastModified: true,
-  setHeaders: (res, filePath) => {
-    if (filePath.endsWith('.html')) {
-      // Always revalidate HTML pages
-      res.setHeader('Cache-Control', 'no-cache');
-    } else if (/\.min\.(js|css)$/.test(filePath)) {
-      // Long cache for fingerprinted/minified assets
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-    } else if (/\.(js|css|svg|png|jpg|jpeg|gif|webp)$/.test(filePath)) {
-      // Moderate caching for other static assets
-      res.setHeader('Cache-Control', 'public, max-age=604800');
-    }
-  }
-}));
+// No static file serving - API only
 
 // Routes
 app.use('/api/contact', require('./routes/contact'));

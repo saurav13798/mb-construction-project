@@ -21,7 +21,7 @@ const contactSchema = new mongoose.Schema({
   phone: {
     type: String,
     trim: true,
-    match: [/^[\+]?[1-9][\d]{0,15}$/, 'Please provide a valid phone number']
+    match: [/^[\+]?[\d\s\-\(\)\.]{7,20}$/, 'Please provide a valid phone number']
   },
   company: {
     type: String,

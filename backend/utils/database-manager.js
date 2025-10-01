@@ -22,11 +22,8 @@ class DatabaseManager {
         this.connectionStatus.status = 'connecting';
         
         const defaultOptions = {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
             serverSelectionTimeoutMS: 5000,
             socketTimeoutMS: 45000,
-            bufferMaxEntries: 0,
             maxPoolSize: 10,
             ...options
         };
