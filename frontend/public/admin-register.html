@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Registration - MB Construction</title>
+    <meta name="description" content="MB Construction Admin Registration - Create new admin account.">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#2563eb">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="animations.css">
+    
+    <!-- Admin Registration Styles -->
+    <style>
+        .register-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--color-background);
+            padding: var(--space-4);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .register-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--gradient-mesh);
+            opacity: 0.3;
+            z-index: 0;
+        }
+        
+        .register-form {
+            max-width: 480px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        .register-form::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(59, 130, 246, 0.05));
+            border-radius: 20px;
+            z-index: -1;
+        }
+        
+        .register-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .register-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .register-subtitle {
+            color: #94a3b8;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .register-warning {
+            background: rgba(217, 119, 6, 0.1);
+            border: 1px solid rgba(217, 119, 6, 0.3);
+            color: #fbbf24;
+            padding: 0.75rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #f8fafc;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #f8fafc;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .form-group input::placeholder {
+            color: #64748b;
+        }
+        
+        .form-group.error input {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+        
+        .field-error {
+            color: #fca5a5;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .field-error::before {
+            content: '⚠️';
+            font-size: 0.75rem;
+        }
+        
+        .register-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        
+        .register-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .register-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
+        }
+        
+        .register-btn:hover::before {
+            left: 100%;
+        }
+        
+        .register-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .register-btn.loading {
+            color: transparent;
+        }
+        
+        .register-btn.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .register-links {
+            text-align: center;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .register-links a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .register-links a:hover {
+            color: #60a5fa;
+        }
+        
+        .success-message {
+            background: rgba(5, 150, 105, 0.1);
+            border: 1px solid rgba(5, 150, 105, 0.3);
+            color: #6ee7b7;
+            padding: 0.75rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+        
+        .error-message {
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            color: #fca5a5;
+            padding: 0.75rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 640px) {
+            .register-form {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .register-title {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-form">
+            <div class="register-header">
+                <h1 class="register-title">Admin Registration</h1>
+                <p class="register-subtitle">Create a new admin account for MB Construction</p>
+                <div class="register-warning">
+                    ⚠️ Admin registration requires a valid registration code
+                </div>
+            </div>
+            
+            <div id="success-message" class="success-message hidden"></div>
+            <div id="error-message" class="error-message hidden"></div>
+            
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="username">Username *</label>
+                    <input type="text" id="username" name="username" required 
+                           placeholder="Enter username (3-50 characters)"
+                           minlength="3" maxlength="50">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" 
+                           placeholder="Enter email address (optional)">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password *</label>
+                    <input type="password" id="password" name="password" required 
+                           placeholder="Enter password (minimum 6 characters)"
+                           minlength="6">
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password *</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required 
+                           placeholder="Confirm your password"
+                           minlength="6">
+                </div>
+                
+                <div class="form-group">
+                    <label for="registrationCode">Registration Code *</label>
+                    <input type="text" id="registrationCode" name="registrationCode" required 
+                           placeholder="Enter admin registration code">
+                </div>
+                
+                <button type="submit" class="register-btn">
+                    <span>Create Admin Account</span>
+                </button>
+            </form>
+            
+            <div class="register-links">
+                <p>Already have an admin account? <a href="admin.html">Login here</a></p>
+                <p><a href="index.html">← Back to Website</a></p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="admin-register.js"></script>
+</body>
+</html>

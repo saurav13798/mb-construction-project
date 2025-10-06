@@ -65,6 +65,19 @@ const contactSchema = new mongoose.Schema({
     default: 'website'
   },
   
+  // Read Status
+  isRead: {
+    type: Boolean,
+    default: false,
+    index: true
+  },
+  readAt: {
+    type: Date
+  },
+  readBy: {
+    type: String
+  },
+  
   // Project Details
   projectBudget: {
     type: String,

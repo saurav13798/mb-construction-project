@@ -1,0 +1,25 @@
+{
+  "timestamp": "2025-10-02T12:02:24.301Z",
+  "scores": {
+    "bundleSize": {
+      "total": 604,
+      "javascript": 170,
+      "css": 224
+    },
+    "overall": 50
+  },
+  "recommendations": [
+    "Run \"npm run build\" to minify JavaScript files",
+    "Run \"npm run build\" to minify CSS files",
+    "Consider CSS optimization for style.css",
+    "Consider CSS optimization for style.min.css",
+    "Consider CSS purging and critical CSS extraction"
+  ],
+  "issues": [
+    "Unminified JS files found: admin-dashboard.js, animation-debug.js, animations.js, app.js, professional.js, theme-switcher.js",
+    "Unminified CSS files found: animations.css, style.css",
+    "Large CSS file: style.css (109KB)",
+    "Large CSS file: style.min.css (87KB)",
+    "CSS bundle too large: 224KB"
+  ]
+}

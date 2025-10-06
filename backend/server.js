@@ -9,6 +9,7 @@ const EnvironmentValidator = require('./config/env-validation');
 const databaseManager = require('./utils/database-manager');
 const trackVisit = require('./middleware/visitTracker');
 const errorHandler = require('./middleware/enhanced-error-middleware');
+const performanceMiddleware = require('./middleware/performance-middleware');
 
 // Validate environment variables first
 const envValidator = new EnvironmentValidator();
@@ -34,13 +35,21 @@ app.use(helmet({
   },
 }));
 
-// Rate limiting
+// Rate limiting - optimized for performance
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.',
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
+  message: { error: 'Too many requests from this IP, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => {
+    // Skip rate limiting for health checks and static assets
+    return req.path === '/health' || req.path.startsWith('/static/');
+  },
+  keyGenerator: (req) => {
+    // Use X-Forwarded-For header if behind proxy
+    return req.ip || req.connection.remoteAddress;
+  }
 });
 app.use(limiter);
 
@@ -56,12 +65,14 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Enable gzip compression for responses
-app.use(compression());
+// Apply performance middleware
+performanceMiddleware.getAllMiddleware().forEach(middleware => {
+  app.use(middleware);
+});
 
-// Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Body parsing middleware - optimized limits
+app.use(express.json({ limit: '1mb' })); // Reduced from 10mb for better performance
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // Visit tracking middleware (track all page visits for admin dashboard)
 app.use(trackVisit);

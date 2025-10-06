@@ -1,135 +1,142 @@
-/**
- * Professional Admin Dashboard
- * Handles authentication, data visualization, and inquiry management
- */
+// MB Construction - Admin Dashboard JavaScript
 
 class AdminDashboard {
     constructor() {
-        this.token = localStorage.getItem('adminToken');
-        this.apiBase = 'http://localhost:3000/api/admin';
+        this.isLoggedIn = false;
+        this.currentUser = null;
+        this.apiUrl = window.location.hostname === 'localhost' 
+            ? 'http://localhost:3000' 
+            : window.location.origin;
+        
         this.init();
     }
-
+    
     init() {
-        this.setupEventListeners();
+        console.log('🔧 Admin Dashboard Initialized');
+        
+        // Check if already logged in
         this.checkAuthStatus();
+        
+        // Bind event listeners
+        this.bindEvents();
+        
+        // Load dashboard data if logged in
+        if (this.isLoggedIn) {
+            this.loadDashboardData();
+        }
     }
-
-    setupEventListeners() {
+    
+    bindEvents() {
         // Login form
-        const loginForm = document.getElementById('adminLoginForm');
+        const loginForm = document.getElementById('login-form');
         if (loginForm) {
             loginForm.addEventListener('submit', (e) => this.handleLogin(e));
         }
-
-        // Registration form
-        const registerForm = document.getElementById('adminRegisterForm');
-        if (registerForm) {
-            registerForm.addEventListener('submit', (e) => this.handleRegister(e));
-        }
-
-        // Toggle between login and register
-        const showRegisterBtn = document.getElementById('show-register-btn');
-        if (showRegisterBtn) {
-            showRegisterBtn.addEventListener('click', () => this.showRegisterForm());
-        }
-
-        const showLoginBtn = document.getElementById('show-login-btn');
-        if (showLoginBtn) {
-            showLoginBtn.addEventListener('click', () => this.showLoginForm());
-        }
-
+        
         // Logout button
-        const logoutBtn = document.getElementById('admin-logout-btn');
+        const logoutBtn = document.getElementById('logout-btn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', () => this.handleLogout());
         }
-
-        // Refresh data button
-        const refreshBtn = document.getElementById('refresh-data-btn');
-        if (refreshBtn) {
-            refreshBtn.addEventListener('click', () => this.refreshDashboard());
-        }
-
-        // Export inquiries button
-        const exportBtn = document.getElementById('export-inquiries-btn');
-        if (exportBtn) {
-            exportBtn.addEventListener('click', () => this.exportInquiries());
-        }
-
-        // Password confirmation validation
-        const confirmPasswordField = document.getElementById('confirm-password');
-        const passwordField = document.getElementById('register-password');
-        if (confirmPasswordField && passwordField) {
-            confirmPasswordField.addEventListener('input', () => {
-                this.validatePasswordMatch();
-            });
-            passwordField.addEventListener('input', () => {
-                this.validatePasswordMatch();
-            });
+        
+        // Auto-refresh dashboard data every 30 seconds
+        if (this.isLoggedIn) {
+            setInterval(() => this.loadDashboardData(), 30000);
         }
     }
-
+    
     checkAuthStatus() {
-        if (this.token) {
-            this.showDashboard();
-            this.loadDashboardData();
+        // Check for stored auth token
+        const token = localStorage.getItem('admin_token');
+        const user = localStorage.getItem('admin_user');
+        
+        if (token && user) {
+            // Verify token is still valid
+            this.verifyToken(token).then(isValid => {
+                if (isValid) {
+                    this.isLoggedIn = true;
+                    this.currentUser = JSON.parse(user);
+                    this.showDashboard();
+                    this.loadDashboardData();
+                } else {
+                    // Token is invalid, clear storage and show login
+                    this.clearAuthData();
+                    this.showLogin();
+                }
+            });
         } else {
-            this.showLoginForm();
+            this.showLogin();
         }
     }
-
+    
+    async verifyToken(token) {
+        try {
+            const response = await fetch(`${this.apiUrl}/api/admin/verify`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            return response.ok;
+        } catch (error) {
+            console.error('Token verification failed:', error);
+            return false;
+        }
+    }
+    
     async handleLogin(e) {
         e.preventDefault();
         
         const form = e.target;
         const formData = new FormData(form);
-        const loginBtn = form.querySelector('button[type="submit"]');
-        const errorDiv = document.getElementById('admin-error-message');
-        
-        // Show loading state
-        const originalText = loginBtn.innerHTML;
-        loginBtn.innerHTML = '<div class="loading-spinner"></div> Authenticating...';
-        loginBtn.disabled = true;
-        
-        // Hide previous errors
-        errorDiv.classList.remove('show');
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
         
         try {
-            const response = await fetch(`${this.apiBase}/login`, {
+            // Show loading state
+            submitBtn.textContent = 'Logging in...';
+            submitBtn.disabled = true;
+            
+            // Clear previous errors
+            this.hideError();
+            
+            const loginData = {
+                username: formData.get('username').trim(),
+                password: formData.get('password')
+            };
+            
+            // Validate input
+            if (!loginData.username || !loginData.password) {
+                throw new Error('Please enter both username and password');
+            }
+            
+            const response = await fetch(`${this.apiUrl}/api/admin/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    username: formData.get('username'),
-                    password: formData.get('password')
-                })
+                body: JSON.stringify(loginData)
             });
-
-            // Check if response is ok and has content
-            if (!response.ok) {
-                const errorText = await response.text();
-                let errorMessage = 'Login failed';
-                try {
-                    const errorData = JSON.parse(errorText);
-                    errorMessage = errorData.message || errorMessage;
-                } catch (e) {
-                    // If response isn't JSON, use the text or a generic message
-                    errorMessage = errorText || `Server error: ${response.status}`;
-                }
-                throw new Error(errorMessage);
-            }
-
-            const data = await response.json();
-
-            if (data.success) {
-                this.token = data.token;
-                localStorage.setItem('adminToken', this.token);
+            
+            const result = await response.json();
+            
+            if (result.success && result.token) {
+                // Store auth data
+                localStorage.setItem('admin_token', result.token);
+                localStorage.setItem('admin_user', JSON.stringify({
+                    username: loginData.username,
+                    loginTime: new Date().toISOString()
+                }));
                 
-                // Success animation
-                loginBtn.innerHTML = '✓ Access Granted';
-                loginBtn.classList.add('btn-success');
+                this.isLoggedIn = true;
+                this.currentUser = {
+                    username: loginData.username,
+                    loginTime: new Date().toISOString()
+                };
+                
+                // Show success and redirect to dashboard
+                this.showSuccess('Login successful! Loading dashboard...');
                 
                 setTimeout(() => {
                     this.showDashboard();
@@ -137,690 +144,583 @@ class AdminDashboard {
                 }, 1000);
                 
             } else {
-                throw new Error(data.message || 'Login failed');
+                throw new Error(result.message || 'Login failed');
             }
             
         } catch (error) {
             console.error('Login error:', error);
-            this.showError(error.message || 'Login failed. Please check your credentials.');
             
+            let errorMessage = 'Login failed. Please try again.';
+            
+            if (error.message.includes('Invalid credentials')) {
+                errorMessage = 'Invalid username or password. Please check your credentials.';
+            } else if (error.message.includes('network') || error.message.includes('fetch')) {
+                errorMessage = 'Network error. Please check your connection and try again.';
+            } else if (error.message.includes('username') || error.message.includes('password')) {
+                errorMessage = error.message;
+            }
+            
+            this.showError(errorMessage);
+        } finally {
             // Reset button
-            loginBtn.innerHTML = originalText;
-            loginBtn.disabled = false;
-            loginBtn.classList.remove('btn-success');
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
         }
     }
-
+    
     handleLogout() {
-        localStorage.removeItem('adminToken');
-        this.token = null;
-        this.showLoginForm();
+        // Clear stored auth data
+        this.clearAuthData();
+        
+        this.isLoggedIn = false;
+        this.currentUser = null;
+        
+        // Show login form
+        this.showLogin();
+        
+        // Show logout message
+        this.showSuccess('Logged out successfully');
+        
+        console.log('👋 Logged out successfully');
     }
-
-    showLoginForm() {
-        const loginPanel = document.getElementById('admin-login-panel');
-        const registerPanel = document.getElementById('admin-register-panel');
-        const dashboardPanel = document.getElementById('admin-dashboard-panel');
-        
-        if (loginPanel) loginPanel.style.display = 'block';
-        if (registerPanel) registerPanel.style.display = 'none';
-        if (dashboardPanel) dashboardPanel.style.display = 'none';
-        
-        // Reset forms
-        const loginForm = document.getElementById('adminLoginForm');
-        const registerForm = document.getElementById('adminRegisterForm');
-        if (loginForm) loginForm.reset();
-        if (registerForm) registerForm.reset();
-        
-        // Clear messages
-        this.clearMessages();
+    
+    clearAuthData() {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
     }
-
-    showRegisterForm() {
-        const loginPanel = document.getElementById('admin-login-panel');
-        const registerPanel = document.getElementById('admin-register-panel');
-        const dashboardPanel = document.getElementById('admin-dashboard-panel');
+    
+    showLogin() {
+        document.getElementById('login-section').classList.remove('hidden');
+        document.getElementById('dashboard-section').classList.add('hidden');
+        document.getElementById('logout-btn').style.display = 'none';
         
-        if (loginPanel) loginPanel.style.display = 'none';
-        if (registerPanel) registerPanel.style.display = 'block';
-        if (dashboardPanel) dashboardPanel.style.display = 'none';
-        
-        // Reset forms
-        const loginForm = document.getElementById('adminLoginForm');
-        const registerForm = document.getElementById('adminRegisterForm');
-        if (loginForm) loginForm.reset();
-        if (registerForm) registerForm.reset();
-        
-        // Clear messages
-        this.clearMessages();
+        // Clear any existing data
+        this.clearDashboardData();
     }
-
+    
     showDashboard() {
-        const loginPanel = document.getElementById('admin-login-panel');
-        const dashboardPanel = document.getElementById('admin-dashboard-panel');
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('dashboard-section').classList.remove('hidden');
+        document.getElementById('logout-btn').style.display = 'inline-flex';
         
-        if (loginPanel) loginPanel.style.display = 'none';
-        if (dashboardPanel) dashboardPanel.style.display = 'block';
-    }
-
-    async handleRegister(e) {
-        e.preventDefault();
-        
-        const form = e.target;
-        const formData = new FormData(form);
-        const registerBtn = form.querySelector('button[type="submit"]');
-        const errorDiv = document.getElementById('admin-register-error');
-        const successDiv = document.getElementById('admin-register-success');
-        
-        // Validate password match
-        if (!this.validatePasswordMatch()) {
-            this.showRegisterError('Passwords do not match');
-            return;
-        }
-        
-        // Show loading state
-        const originalText = registerBtn.innerHTML;
-        registerBtn.innerHTML = '<div class="loading-spinner"></div> Creating Account...';
-        registerBtn.disabled = true;
-        
-        // Hide previous messages
-        errorDiv.classList.remove('show');
-        successDiv.classList.remove('show');
-        
-        try {
-            const response = await fetch(`${this.apiBase}/register`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    username: formData.get('username'),
-                    email: formData.get('email'),
-                    password: formData.get('password'),
-                    registrationCode: formData.get('registrationCode')
-                })
-            });
-
-            // Check if response is ok and has content
-            if (!response.ok) {
-                const errorText = await response.text();
-                let errorMessage = 'Registration failed';
-                try {
-                    const errorData = JSON.parse(errorText);
-                    errorMessage = errorData.message || errorMessage;
-                } catch (e) {
-                    // If response isn't JSON, use the text or a generic message
-                    errorMessage = errorText || `Server error: ${response.status}`;
-                }
-                throw new Error(errorMessage);
+        // Update welcome message
+        if (this.currentUser) {
+            const welcomeMessage = document.querySelector('.admin-subtitle');
+            if (welcomeMessage) {
+                welcomeMessage.textContent = `Welcome back, ${this.currentUser.username}!`;
             }
-
-            const data = await response.json();
-
-            if (data.success) {
-                // Success animation
-                registerBtn.innerHTML = '✓ Account Created';
-                registerBtn.classList.add('btn-success');
-                
-                this.showRegisterSuccess('Admin account created successfully! You can now login.');
-                
-                setTimeout(() => {
-                    this.showLoginForm();
-                }, 2000);
-                
-            } else {
-                throw new Error(data.message || 'Registration failed');
-            }
-            
-        } catch (error) {
-            console.error('Registration error:', error);
-            this.showRegisterError(error.message || 'Registration failed. Please check your details.');
-            
-            // Reset button
-            registerBtn.innerHTML = originalText;
-            registerBtn.disabled = false;
-            registerBtn.classList.remove('btn-success');
         }
     }
-
-    validatePasswordMatch() {
-        const passwordField = document.getElementById('register-password');
-        const confirmPasswordField = document.getElementById('confirm-password');
-        
-        if (!passwordField || !confirmPasswordField) return true;
-        
-        const password = passwordField.value;
-        const confirmPassword = confirmPasswordField.value;
-        
-        if (confirmPassword && password !== confirmPassword) {
-            confirmPasswordField.setCustomValidity('Passwords do not match');
-            confirmPasswordField.classList.add('error');
-            return false;
-        } else {
-            confirmPasswordField.setCustomValidity('');
-            confirmPasswordField.classList.remove('error');
-            return true;
-        }
-    }
-
+    
     showError(message) {
-        const errorDiv = document.getElementById('admin-error-message');
+        const errorDiv = document.getElementById('login-error');
         if (errorDiv) {
             errorDiv.textContent = message;
-            errorDiv.classList.add('show');
-            
-            // Auto-hide after 5 seconds
-            setTimeout(() => {
-                errorDiv.classList.remove('show');
-            }, 5000);
+            errorDiv.classList.remove('hidden');
         }
     }
-
-    showRegisterError(message) {
-        const errorDiv = document.getElementById('admin-register-error');
+    
+    hideError() {
+        const errorDiv = document.getElementById('login-error');
         if (errorDiv) {
-            errorDiv.textContent = message;
-            errorDiv.classList.add('show');
-            
-            // Auto-hide after 5 seconds
-            setTimeout(() => {
-                errorDiv.classList.remove('show');
-            }, 5000);
+            errorDiv.classList.add('hidden');
         }
     }
-
-    showRegisterSuccess(message) {
-        const successDiv = document.getElementById('admin-register-success');
-        if (successDiv) {
-            successDiv.textContent = message;
-            successDiv.classList.add('show');
+    
+    showSuccess(message) {
+        // Create or update success message element
+        let successDiv = document.getElementById('login-success');
+        if (!successDiv) {
+            successDiv = document.createElement('div');
+            successDiv.id = 'login-success';
+            successDiv.className = 'success-message';
             
-            // Auto-hide after 5 seconds
-            setTimeout(() => {
-                successDiv.classList.remove('show');
-            }, 5000);
+            const loginForm = document.getElementById('login-form');
+            if (loginForm) {
+                loginForm.insertBefore(successDiv, loginForm.firstChild);
+            }
         }
-    }
-
-    clearMessages() {
-        const errorDiv = document.getElementById('admin-error-message');
-        const registerErrorDiv = document.getElementById('admin-register-error');
-        const registerSuccessDiv = document.getElementById('admin-register-success');
         
-        if (errorDiv) errorDiv.classList.remove('show');
-        if (registerErrorDiv) registerErrorDiv.classList.remove('show');
-        if (registerSuccessDiv) registerSuccessDiv.classList.remove('show');
+        successDiv.textContent = message;
+        successDiv.classList.remove('hidden');
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            if (successDiv.parentElement) {
+                successDiv.classList.add('hidden');
+            }
+        }, 3000);
     }
-
+    
     async loadDashboardData() {
         try {
-            this.updateLastRefreshTime();
-            await Promise.all([
-                this.loadVisitsData(),
-                this.loadInquiriesData(),
-                this.loadRecentInquiries(),
-                this.loadQuickStats()
-            ]);
+            const token = localStorage.getItem('admin_token');
+            if (!token) {
+                this.handleLogout();
+                return;
+            }
+            
+            // Load contacts count
+            await this.loadContactsData(token);
+            
+            // Load visits data
+            await this.loadVisitsData(token);
+            
+            // Update last refresh time
+            this.updateLastRefresh();
+            
         } catch (error) {
-            console.error('Dashboard data loading error:', error);
-            this.showError('Failed to load dashboard data');
-        }
-    }
-
-    async refreshDashboard() {
-        const refreshBtn = document.getElementById('refresh-data-btn');
-        if (refreshBtn) {
-            const originalText = refreshBtn.innerHTML;
-            refreshBtn.innerHTML = '<div class="loading-spinner"></div> Refreshing...';
-            refreshBtn.disabled = true;
+            console.error('Error loading dashboard data:', error);
             
-            await this.loadDashboardData();
-            
-            refreshBtn.innerHTML = originalText;
-            refreshBtn.disabled = false;
+            // If unauthorized, logout user
+            if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+                this.handleLogout();
+            }
         }
     }
-
-    updateLastRefreshTime() {
-        const timeElement = document.getElementById('last-update-time');
-        if (timeElement) {
-            const now = new Date();
-            timeElement.textContent = now.toLocaleTimeString('en-IN');
-        }
-    }
-
-    async loadQuickStats() {
+    
+    async loadContactsData(token) {
         try {
-            const response = await fetch('http://localhost:3000/api/contact/stats', {
+            const response = await fetch(`${this.apiUrl}/api/admin/contacts/count`, {
                 headers: {
-                    'Authorization': `Bearer ${this.token}`
+                    'Authorization': `Bearer ${token}`
                 }
             });
-
-            if (!response.ok) {
-                if (response.status === 401) {
-                    this.handleLogout();
-                    return;
-                }
-                throw new Error('Failed to fetch stats');
-            }
-
-            const data = await response.json();
             
-            if (data.success) {
-                this.renderQuickStats(data.data);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
+            
+            const data = await response.json();
+            this.updateContactStats(data);
             
         } catch (error) {
-            console.error('Quick stats error:', error);
+            console.error('Error loading contacts data:', error);
+            // Set default values on error
+            this.updateContactStats({ total: 0, today: 0 });
         }
     }
-
-    renderQuickStats(stats) {
-        const totalElement = document.getElementById('total-inquiries');
-        const newElement = document.getElementById('new-inquiries');
-        const responseElement = document.getElementById('response-rate');
-        const avgTimeElement = document.getElementById('avg-response-time');
-
-        if (totalElement) totalElement.textContent = stats.overview.totalContacts || '0';
-        if (newElement) newElement.textContent = stats.overview.recentContacts || '0';
-        if (responseElement) responseElement.textContent = '95%'; // Calculate from actual data
-        if (avgTimeElement) avgTimeElement.textContent = '< 24h'; // Calculate from actual data
-    }
-
-    async exportInquiries() {
+    
+    async loadVisitsData(token) {
         try {
-            const response = await fetch('http://localhost:3000/api/contact?limit=1000', {
+            const response = await fetch(`${this.apiUrl}/api/admin/visits`, {
                 headers: {
-                    'Authorization': `Bearer ${this.token}`
+                    'Authorization': `Bearer ${token}`
                 }
             });
-
+            
             if (!response.ok) {
-                throw new Error('Failed to fetch inquiries for export');
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
-
+            
             const data = await response.json();
-            this.downloadCSV(data.data);
+            this.updateVisitsStats(data);
             
         } catch (error) {
-            console.error('Export error:', error);
-            this.showError('Failed to export inquiries');
+            console.error('Error loading visits data:', error);
+            // Set default values on error
+            this.updateVisitsStats({ visits: [] });
         }
     }
-
-    downloadCSV(inquiries) {
-        const headers = ['Name', 'Email', 'Phone', 'Company', 'Service', 'Message', 'Date', 'Status'];
-        const csvContent = [
-            headers.join(','),
-            ...inquiries.map(inquiry => [
-                `"${inquiry.name || ''}"`,
-                `"${inquiry.email || ''}"`,
-                `"${inquiry.phone || ''}"`,
-                `"${inquiry.company || ''}"`,
-                `"${this.formatServiceName(inquiry.service)}"`,
-                `"${(inquiry.message || '').replace(/"/g, '""')}"`,
-                `"${this.formatDate(inquiry.createdAt)}"`,
-                `"${inquiry.status || 'new'}"`
-            ].join(','))
-        ].join('\n');
-
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', `mb-construction-inquiries-${new Date().toISOString().split('T')[0]}.csv`);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-
-    async loadVisitsData() {
-        const container = document.getElementById('visits-chart');
-        const summaryContainer = document.getElementById('visits-summary');
+    
+    updateContactStats(data) {
+        const totalContactsEl = document.getElementById('total-contacts');
+        const newContactsEl = document.getElementById('new-contacts');
         
-        try {
-            const response = await fetch(`${this.apiBase}/visits`, {
-                headers: {
-                    'Authorization': `Bearer ${this.token}`
-                }
-            });
-
-            if (!response.ok) {
-                if (response.status === 401) {
-                    this.handleLogout();
-                    return;
-                }
-                throw new Error('Failed to fetch visits data');
-            }
-
-            const data = await response.json();
-            
-            if (data.success) {
-                this.renderVisitsChart(container, data.visits);
-                this.renderVisitsSummary(summaryContainer, data.visits);
-            } else {
-                throw new Error(data.message);
-            }
-            
-        } catch (error) {
-            console.error('Visits data error:', error);
-            container.innerHTML = '<p class="error-text">Failed to load visits data</p>';
+        if (totalContactsEl && data.total !== undefined) {
+            this.animateCounter(totalContactsEl, data.total);
+        }
+        
+        if (newContactsEl && data.today !== undefined) {
+            this.animateCounter(newContactsEl, data.today);
         }
     }
-
-    async loadInquiriesData() {
-        const container = document.getElementById('inquiries-chart');
-        const summaryContainer = document.getElementById('inquiries-summary');
+    
+    updateVisitsStats(data) {
+        // Calculate total visits from the last 30 days
+        const totalVisits = data.visits ? data.visits.reduce((sum, visit) => sum + visit.count, 0) : 0;
         
-        try {
-            const response = await fetch(`${this.apiBase}/contacts`, {
-                headers: {
-                    'Authorization': `Bearer ${this.token}`
-                }
-            });
-
-            if (!response.ok) {
-                if (response.status === 401) {
-                    this.handleLogout();
-                    return;
-                }
-                throw new Error('Failed to fetch inquiries data');
-            }
-
-            const data = await response.json();
-            
-            if (data.success) {
-                this.renderInquiriesChart(container, data.contactsByService);
-                this.renderInquiriesSummary(summaryContainer, data.contactsByService);
-            } else {
-                throw new Error(data.message);
-            }
-            
-        } catch (error) {
-            console.error('Inquiries data error:', error);
-            container.innerHTML = '<p class="error-text">Failed to load inquiries data</p>';
+        const monthlyVisitsEl = document.getElementById('monthly-visits');
+        if (monthlyVisitsEl) {
+            monthlyVisitsEl.textContent = this.formatNumber(totalVisits);
         }
     }
-
-    async loadRecentInquiries() {
-        const container = document.getElementById('recent-inquiries');
+    
+    updateLastRefresh() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString();
         
-        try {
-            const response = await fetch('http://localhost:3000/api/contact?limit=10', {
-                headers: {
-                    'Authorization': `Bearer ${this.token}`
-                }
-            });
-
-            if (!response.ok) {
-                if (response.status === 401) {
-                    this.handleLogout();
-                    return;
-                }
-                throw new Error('Failed to fetch recent inquiries');
-            }
-
-            const data = await response.json();
-            this.renderRecentInquiries(container, data.data || []);
-            
-        } catch (error) {
-            console.error('Recent inquiries error:', error);
-            container.innerHTML = '<p class="error-text">Failed to load recent inquiries</p>';
+        // Add or update refresh indicator
+        let refreshIndicator = document.getElementById('last-refresh');
+        if (!refreshIndicator) {
+            refreshIndicator = document.createElement('div');
+            refreshIndicator.id = 'last-refresh';
+            refreshIndicator.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                background: rgba(37, 99, 235, 0.1);
+                color: #3b82f6;
+                padding: 0.5rem 1rem;
+                border-radius: 20px;
+                font-size: 0.75rem;
+                border: 1px solid rgba(37, 99, 235, 0.2);
+                backdrop-filter: blur(10px);
+            `;
+            document.body.appendChild(refreshIndicator);
+        }
+        
+        refreshIndicator.textContent = `Last updated: ${timeString}`;
+    }
+    
+    formatNumber(num) {
+        if (num >= 1000000) {
+            return (num / 1000000).toFixed(1) + 'M';
+        } else if (num >= 1000) {
+            return (num / 1000).toFixed(1) + 'K';
+        }
+        return num.toString();
+    }
+    
+    animateCounter(element, target) {
+        const current = parseInt(element.textContent) || 0;
+        const increment = Math.ceil((target - current) / 20);
+        
+        if (current < target) {
+            element.textContent = current + increment;
+            setTimeout(() => this.animateCounter(element, target), 50);
+        } else {
+            element.textContent = target;
         }
     }
-
-    renderVisitsChart(container, visits) {
-        if (!visits || visits.length === 0) {
-            container.innerHTML = '<p class="no-data">No visits data available</p>';
-            return;
-        }
-
-        const maxVisits = Math.max(...visits.map(v => v.count));
-        
-        const chartHTML = `
-            <div class="visits-chart">
-                ${visits.map(visit => {
-                    const height = (visit.count / maxVisits) * 100;
-                    const date = `${visit._id.day}/${visit._id.month}`;
-                    return `<div class="chart-bar" style="height: ${height}%" data-value="${visit.count}" title="${date}: ${visit.count} visits"></div>`;
-                }).join('')}
-            </div>
-        `;
-        
-        container.innerHTML = chartHTML;
-    }
-
-    renderVisitsSummary(container, visits) {
-        const totalVisits = visits.reduce((sum, visit) => sum + visit.count, 0);
-        const avgVisits = visits.length > 0 ? Math.round(totalVisits / visits.length) : 0;
-        const maxDay = visits.reduce((max, visit) => visit.count > max.count ? visit : max, visits[0] || {count: 0});
-        
-        container.innerHTML = `
-            <div class="summary-item">
-                <span class="summary-number">${totalVisits}</span>
-                <span class="summary-label">Total Visits</span>
-            </div>
-            <div class="summary-item">
-                <span class="summary-number">${avgVisits}</span>
-                <span class="summary-label">Daily Average</span>
-            </div>
-            <div class="summary-item">
-                <span class="summary-number">${maxDay.count || 0}</span>
-                <span class="summary-label">Peak Day</span>
-            </div>
-        `;
-    }
-
-    renderInquiriesChart(container, inquiries) {
-        if (!inquiries || inquiries.length === 0) {
-            container.innerHTML = '<p class="no-data">No inquiries data available</p>';
-            return;
-        }
-
-        const maxInquiries = Math.max(...inquiries.map(i => i.count));
-        
-        const chartHTML = `
-            <div class="inquiries-chart">
-                ${inquiries.map(inquiry => {
-                    const height = (inquiry.count / maxInquiries) * 100;
-                    const serviceName = this.formatServiceName(inquiry._id);
-                    return `<div class="chart-bar" style="height: ${height}%" data-value="${inquiry.count}" title="${serviceName}: ${inquiry.count} inquiries"></div>`;
-                }).join('')}
-            </div>
-        `;
-        
-        container.innerHTML = chartHTML;
-    }
-
-    renderInquiriesSummary(container, inquiries) {
-        const totalInquiries = inquiries.reduce((sum, inquiry) => sum + inquiry.count, 0);
-        const topService = inquiries.reduce((max, inquiry) => inquiry.count > max.count ? inquiry : max, inquiries[0] || {count: 0});
-        
-        container.innerHTML = `
-            <div class="summary-item">
-                <span class="summary-number">${totalInquiries}</span>
-                <span class="summary-label">Total Inquiries</span>
-            </div>
-            <div class="summary-item">
-                <span class="summary-number">${inquiries.length}</span>
-                <span class="summary-label">Service Types</span>
-            </div>
-            <div class="summary-item">
-                <span class="summary-number">${topService.count || 0}</span>
-                <span class="summary-label">Top Service</span>
-            </div>
-        `;
-    }
-
-    renderRecentInquiries(container, inquiries) {
-        if (!inquiries || inquiries.length === 0) {
-            container.innerHTML = '<p class="no-data">No recent inquiries available</p>';
-            return;
-        }
-
-        const recentInquiries = inquiries.slice(0, 10); // Show last 10
-        
-        const tableHTML = `
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Service</th>
-                        <th>Company</th>
-                        <th>Date</th>
-                        <th>Message</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${recentInquiries.map(inquiry => `
-                        <tr>
-                            <td>${this.escapeHtml(inquiry.name || 'N/A')}</td>
-                            <td>${this.escapeHtml(inquiry.email || 'N/A')}</td>
-                            <td><span class="inquiry-service">${this.formatServiceName(inquiry.service)}</span></td>
-                            <td>${this.escapeHtml(inquiry.company || 'N/A')}</td>
-                            <td class="inquiry-date">${this.formatDate(inquiry.createdAt)}</td>
-                            <td>${this.truncateText(this.escapeHtml(inquiry.message || ''), 50)}</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        `;
-        
-        container.innerHTML = tableHTML;
-    }
-
-    formatServiceName(service) {
-        const serviceNames = {
-            'redevelopment': 'Redevelopment',
-            'government-contract': 'Government Contract',
-            'manpower': 'Manpower Supply',
-            'consultation': 'Consultation',
-            'other': 'Other'
-        };
-        return serviceNames[service] || service || 'Unknown';
-    }
-
-    formatDate(dateString) {
-        if (!dateString) return 'N/A';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-IN', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric'
+    
+    clearDashboardData() {
+        // Reset all counters to 0
+        const counters = document.querySelectorAll('.stat-number');
+        counters.forEach(counter => {
+            counter.textContent = '0';
         });
+        
+        // Remove refresh indicator
+        const refreshIndicator = document.getElementById('last-refresh');
+        if (refreshIndicator) {
+            refreshIndicator.remove();
+        }
     }
-
-    escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
+    
+    async loadContacts() {
+        try {
+            const token = localStorage.getItem('admin_token');
+            if (!token) return;
+            
+            const response = await fetch(`${this.apiUrl}/api/admin/contacts`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (response.ok) {
+                const contacts = await response.json();
+                this.displayContacts(contacts);
+            } else {
+                throw new Error('Failed to load contacts');
+            }
+            
+        } catch (error) {
+            console.error('Error loading contacts:', error);
+            this.showContactsError('Failed to load contacts');
+        }
     }
-
-    truncateText(text, maxLength) {
-        if (text.length <= maxLength) return text;
-        return text.substring(0, maxLength) + '...';
+    
+    async loadAllContacts() {
+        try {
+            const token = localStorage.getItem('admin_token');
+            if (!token) return;
+            
+            const response = await fetch(`${this.apiUrl}/api/admin/contacts/all`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                this.displayContacts(data.contacts || []);
+            } else {
+                throw new Error('Failed to load contacts');
+            }
+            
+        } catch (error) {
+            console.error('Error loading contacts:', error);
+            this.showContactsError('Failed to load contacts');
+        }
+    }
+    
+    displayContacts(contacts) {
+        const contactsList = document.getElementById('contacts-list');
+        if (!contactsList) return;
+        
+        if (contacts.length === 0) {
+            contactsList.innerHTML = '<p style="text-align: center; color: var(--color-text-secondary);">No contacts found.</p>';
+            return;
+        }
+        
+        const contactsHTML = contacts.map(contact => `
+            <div class="contact-item" style="
+                background: var(--glass-bg);
+                border: 1px solid var(--glass-border);
+                border-radius: var(--radius-lg);
+                padding: var(--space-4);
+                margin-bottom: var(--space-4);
+            ">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-3);">
+                    <div>
+                        <h4 style="color: var(--color-text); margin-bottom: var(--space-1);">${contact.name}</h4>
+                        <p style="color: var(--color-text-secondary); font-size: 0.875rem;">${contact.email}</p>
+                        ${contact.phone ? `<p style="color: var(--color-text-secondary); font-size: 0.875rem;">${contact.phone}</p>` : ''}
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="color: var(--color-text-muted); font-size: 0.75rem;">${new Date(contact.createdAt).toLocaleDateString()}</span>
+                        <br>
+                        <span style="color: var(--color-primary); font-size: 0.75rem; font-weight: 600;">${contact.service || 'General Inquiry'}</span>
+                    </div>
+                </div>
+                <div style="background: rgba(37, 99, 235, 0.05); padding: var(--space-3); border-radius: var(--radius-md);">
+                    <p style="color: var(--color-text-secondary); line-height: 1.5; margin: 0;">${contact.message}</p>
+                </div>
+                <div style="margin-top: var(--space-3); display: flex; gap: var(--space-2);">
+                    <button onclick="markAsRead('${contact._id}')" class="admin-btn" style="flex: none; padding: var(--space-1) var(--space-3); font-size: 0.75rem;">
+                        Mark as Read
+                    </button>
+                    <button onclick="deleteContact('${contact._id}')" class="admin-btn danger" style="flex: none; padding: var(--space-1) var(--space-3); font-size: 0.75rem;">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        `).join('');
+        
+        contactsList.innerHTML = contactsHTML;
+    }
+    
+    showContactsError(message) {
+        const contactsList = document.getElementById('contacts-list');
+        if (contactsList) {
+            contactsList.innerHTML = `<p style="text-align: center; color: #dc2626;">${message}</p>`;
+        }
     }
 }
+// Glo
+bal functions for admin actions
+window.viewContacts = async function() {
+    const modal = document.getElementById('contacts-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100%';
+        modal.style.height = '100%';
+        modal.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        modal.style.alignItems = 'center';
+        modal.style.justifyContent = 'center';
+        modal.style.zIndex = '10000';
+        
+        // Load contacts using the new endpoint
+        if (window.adminDashboard) {
+            await window.adminDashboard.loadAllContacts();
+        }
+    }
+};
+
+window.closeContactsModal = function() {
+    const modal = document.getElementById('contacts-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+};
+
+window.exportContacts = async function() {
+    try {
+        const token = localStorage.getItem('admin_token');
+        if (!token) {
+            alert('Please login first');
+            return;
+        }
+        
+        const response = await fetch(`${window.adminDashboard.apiUrl}/api/admin/contacts/all?limit=1000`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            const contacts = data.contacts;
+            
+            // Create CSV content
+            const csvContent = [
+                ['Name', 'Email', 'Phone', 'Service', 'Message', 'Date', 'Status'].join(','),
+                ...contacts.map(contact => [
+                    `"${contact.name}"`,
+                    `"${contact.email}"`,
+                    `"${contact.phone || ''}"`,
+                    `"${contact.service || ''}"`,
+                    `"${contact.message.replace(/"/g, '""')}"`,
+                    `"${new Date(contact.createdAt).toLocaleDateString()}"`,
+                    `"${contact.isRead ? 'Read' : 'Unread'}"`
+                ].join(','))
+            ].join('\n');
+            
+            // Download CSV
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `contacts_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            alert('Contacts exported successfully!');
+        } else {
+            throw new Error('Failed to export contacts');
+        }
+    } catch (error) {
+        console.error('Export error:', error);
+        alert('Failed to export contacts. Please try again.');
+    }
+};
+
+window.manageProjects = function() {
+    alert('Project management functionality will be implemented soon!');
+};
+
+window.addProject = function() {
+    alert('Add project functionality will be implemented soon!');
+};
+
+window.manageUsers = function() {
+    alert('User management functionality will be implemented soon!');
+};
+
+window.addUser = function() {
+    window.open('admin-register.html', '_blank');
+};
+
+window.viewAnalytics = function() {
+    alert('Detailed analytics functionality will be implemented soon!');
+};
+
+window.exportReport = function() {
+    alert('Report export functionality will be implemented soon!');
+};
+
+window.editContent = function() {
+    alert('Content management functionality will be implemented soon!');
+};
+
+window.manageMedia = function() {
+    alert('Media library functionality will be implemented soon!');
+};
+
+window.systemSettings = function() {
+    alert('System settings functionality will be implemented soon!');
+};
+
+window.createBackup = function() {
+    alert('Backup functionality will be implemented soon!');
+};
+
+window.markAsRead = async function(contactId) {
+    try {
+        const token = localStorage.getItem('admin_token');
+        if (!token) return;
+        
+        const response = await fetch(`${window.adminDashboard.apiUrl}/api/admin/contacts/${contactId}/read`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (response.ok) {
+            // Reload contacts and update dashboard
+            await window.adminDashboard.loadAllContacts();
+            await window.adminDashboard.loadDashboardData();
+            
+            // Show success message
+            const notification = document.createElement('div');
+            notification.textContent = 'Contact marked as read';
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #059669;
+                color: white;
+                padding: 0.75rem 1rem;
+                border-radius: 8px;
+                z-index: 10001;
+                font-size: 0.875rem;
+            `;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        } else {
+            throw new Error('Failed to mark as read');
+        }
+    } catch (error) {
+        console.error('Error marking contact as read:', error);
+        alert('Failed to mark contact as read');
+    }
+};
+
+window.deleteContact = async function(contactId) {
+    if (!confirm('Are you sure you want to delete this contact? This action cannot be undone.')) {
+        return;
+    }
+    
+    try {
+        const token = localStorage.getItem('admin_token');
+        if (!token) return;
+        
+        const response = await fetch(`${window.adminDashboard.apiUrl}/api/admin/contacts/${contactId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (response.ok) {
+            // Reload contacts and update dashboard
+            await window.adminDashboard.loadAllContacts();
+            await window.adminDashboard.loadDashboardData();
+            
+            // Show success message
+            const notification = document.createElement('div');
+            notification.textContent = 'Contact deleted successfully';
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #dc2626;
+                color: white;
+                padding: 0.75rem 1rem;
+                border-radius: 8px;
+                z-index: 10001;
+                font-size: 0.875rem;
+            `;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        } else {
+            throw new Error('Failed to delete contact');
+        }
+    } catch (error) {
+        console.error('Error deleting contact:', error);
+        alert('Failed to delete contact');
+    }
+};
 
 // Initialize admin dashboard when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    // Only initialize if we're on a page with admin dashboard
-    if (document.getElementById('admin-dashboard-section')) {
-        new AdminDashboard();
-    }
+document.addEventListener('DOMContentLoaded', function() {
+    window.adminDashboard = new AdminDashboard();
 });
-
-// Add professional styles for error states and registration
-const adminStyles = `
-    .error-text {
-        color: #dc2626;
-        text-align: center;
-        font-style: italic;
-        padding: var(--space-4);
-    }
-    
-    .no-data {
-        color: var(--color-text-secondary);
-        text-align: center;
-        font-style: italic;
-        padding: var(--space-4);
-    }
-    
-    .btn-success {
-        background: var(--gradient-success) !important;
-        border-color: var(--color-success) !important;
-    }
-    
-    .success-message {
-        background: rgba(34, 197, 94, 0.1);
-        border: 1px solid rgba(34, 197, 94, 0.3);
-        color: #22c55e;
-        padding: var(--space-4);
-        border-radius: var(--radius-md);
-        margin-top: var(--space-4);
-        opacity: 0;
-        transform: translateY(-10px);
-        transition: all var(--transition-normal);
-    }
-    
-    .success-message.show {
-        opacity: 1;
-        transform: translateY(0);
-    }
-    
-    .auth-toggle {
-        text-align: center;
-        margin-top: var(--space-4);
-    }
-    
-    .link-btn {
-        background: none;
-        border: none;
-        color: var(--color-primary);
-        text-decoration: underline;
-        cursor: pointer;
-        font-size: 0.875rem;
-        padding: 0;
-        transition: color var(--transition-normal);
-    }
-    
-    .link-btn:hover {
-        color: var(--color-primary-light);
-    }
-    
-    .form-help {
-        display: block;
-        font-size: 0.75rem;
-        color: var(--color-text-secondary);
-        margin-top: var(--space-1);
-        font-style: italic;
-    }
-    
-    .form-group input.error {
-        border-color: #dc2626;
-        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
-    }
-    
-    .admin-panel {
-        animation: panelSlideIn 0.5s ease-out;
-    }
-    
-    @keyframes panelSlideIn {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-`;
-
-// Inject admin styles
-const adminStyleSheet = document.createElement('style');
-adminStyleSheet.textContent = adminStyles;
-document.head.appendChild(adminStyleSheet);

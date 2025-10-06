@@ -25,6 +25,8 @@ class DatabaseManager {
             serverSelectionTimeoutMS: 5000,
             socketTimeoutMS: 45000,
             maxPoolSize: 10,
+            minPoolSize: 2, // Maintain minimum connections
+            maxIdleTimeMS: 30000, // Close connections after 30s idle
             ...options
         };
 

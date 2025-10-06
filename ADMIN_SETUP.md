@@ -1,50 +1,47 @@
 # Admin Portal Setup Guide
 
-## 🔐 Admin Registration & Login
+## 🔐 Admin Registration & Login System
 
-### **Default Admin Account**
+### **New Admin Registration**
 
-- **Username**: `admin`
-- **Password**: `admin123`
-- **Email**: `admin@test.com`
+**Registration URL**: `http://localhost:8080/admin-register.html`
 
-### **Creating New Admin Accounts**
-
-#### **Registration Code**
-
-- **Current Registration Code**: `MB2024ADMIN`
-- **Location**: Set in `backend/.env` as `ADMIN_REGISTRATION_CODE`
-- **Security**: Change this code for production environments
-
-#### **Registration Process**
-
-1. Navigate to admin portal: `http://localhost:3000/admin.html`
-2. Click "Need an account? Register here"
-3. Fill in the registration form:
-   - **Username**: Minimum 3 characters
-   - **Email**: Valid email address
+**Registration Process**:
+1. Open the registration page
+2. Fill in the form:
+   - **Username**: 3-50 characters (letters, numbers, hyphens, underscores only)
+   - **Email**: Valid email address (optional)
    - **Password**: Minimum 6 characters
    - **Confirm Password**: Must match password
    - **Registration Code**: `MB2024ADMIN`
-4. Click "Create Admin Account"
-5. Upon success, you'll be redirected to login
+3. Click "Create Admin Account"
+4. Upon success, you'll be redirected to login
 
-#### **Login Process**
+### **Admin Login**
 
-1. Navigate to admin portal: `http://localhost:3000/admin.html`
-2. Enter your username and password
-3. Click "Access Dashboard"
+**Login URL**: `http://localhost:8080/admin.html`
 
-### **Setting Up First Admin (Development)**
+**Login Process**:
+1. Enter your username and password
+2. Click "Login"
+3. Access the admin dashboard
 
-If no admin exists, run the seeder:
+### **Registration Code Security**
 
+- **Current Code**: `MB2024ADMIN`
+- **Location**: `backend/.env` as `ADMIN_REGISTRATION_CODE`
+- **Production**: Change this code for production environments
+
+### **Admin System Setup**
+
+**Quick Setup**:
 ```bash
-# From project root
-npm run db:seed
+# Run the admin system setup
+admin-system-setup.bat
 
-# Or from backend directory
-node utils/test-seeder.js
+# Or manually
+node setup-admin-system.js
+node test-admin-system.js
 ```
 
 ### **Environment Configuration**
@@ -81,22 +78,22 @@ MONGODB_URI=mongodb://localhost:27017/mb_construction
 
 ### **Features**
 
-#### **Admin Dashboard Includes:**
+### **Admin Dashboard Features**
 
-- 📊 Site visit analytics
-- 📋 Service inquiry management
-- ⚡ Quick statistics overview
-- 🔧 System status monitoring
-- 📨 Recent inquiries table
-- 📥 Export functionality
+- 📊 **Analytics**: Contact counts, visit statistics, conversion metrics
+- 📋 **Contact Management**: View, mark as read, delete contacts
+- 📥 **Export**: CSV export of all contact data
+- 🔄 **Real-time Updates**: Auto-refresh dashboard data every 30 seconds
+- 📱 **Responsive Design**: Professional glass morphism UI
+- 🔐 **Security**: JWT token verification and auto-logout
 
-#### **Registration Features:**
+### **Registration System Features**
 
-- ✅ Real-time password validation
-- ✅ Password confirmation matching
-- ✅ Form validation and error handling
-- ✅ Success/error messaging
-- ✅ Smooth transitions between login/register
+- ✅ **Real-time Validation**: Username, email, password validation
+- ✅ **Security**: Registration code protection
+- ✅ **User Experience**: Professional UI with loading states
+- ✅ **Error Handling**: Comprehensive error messages
+- ✅ **Accessibility**: Keyboard navigation and screen reader support
 
 ### **Troubleshooting**
 

@@ -1,0 +1,44 @@
+{
+  "timestamp": "2025-10-02T12:07:06.538Z",
+  "summary": {
+    "totalImages": 3,
+    "totalSize": 4,
+    "potentialSavings": 0,
+    "savingsPercentage": 0
+  },
+  "images": [
+    {
+      "path": "favicon.svg",
+      "fullPath": "E:\\mb construction\\mb-construction-project\\frontend\\public\\favicon.svg",
+      "size": 1,
+      "extension": ".svg",
+      "recommendations": [
+        "Consider SVG optimization (remove metadata, minify)"
+      ],
+      "priority": "low",
+      "potentialSavings": 0
+    },
+    {
+      "path": "hero-bg-premium.svg",
+      "fullPath": "E:\\mb construction\\mb-construction-project\\frontend\\public\\hero-bg-premium.svg",
+      "size": 2,
+      "extension": ".svg",
+      "recommendations": [
+        "Consider SVG optimization (remove metadata, minify)"
+      ],
+      "priority": "low",
+      "potentialSavings": 0
+    },
+    {
+      "path": "hero-bg.svg",
+      "fullPath": "E:\\mb construction\\mb-construction-project\\frontend\\public\\hero-bg.svg",
+      "size": 1,
+      "extension": ".svg",
+      "recommendations": [
+        "Consider SVG optimization (remove metadata, minify)"
+      ],
+      "priority": "low",
+      "potentialSavings": 0
+    }
+  ]
+}
