@@ -509,8 +509,8 @@ class AdminDashboard {
         }
     }
 }
-// Glo
-bal functions for admin actions
+
+// Global functions for admin actions
 window.viewContacts = async function() {
     const modal = document.getElementById('contacts-modal');
     if (modal) {

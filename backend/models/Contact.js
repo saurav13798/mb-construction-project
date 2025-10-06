@@ -34,7 +34,7 @@ const contactSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Service selection is required'],
     enum: {
-      values: ['redevelopment', 'government-contract', 'manpower', 'consultation', 'other'],
+      values: ['building-redevelopment', 'government-contracts', 'manpower-supply', 'project-management', 'redevelopment', 'government-contract', 'manpower', 'consultation', 'other'],
       message: 'Please select a valid service type'
     },
     index: true
@@ -157,7 +157,7 @@ contactSchema.virtual('daysSinceInquiry').get(function() {
 contactSchema.pre('save', function(next) {
   if (this.isNew) {
     // Set higher priority for government contracts and large projects
-    if (this.service === 'government-contract') {
+    if (this.service === 'government-contract' || this.service === 'government-contracts') {
       this.priority = 'high';
     } else if (this.projectBudget === '50-lakh-plus') {
       this.priority = 'high';

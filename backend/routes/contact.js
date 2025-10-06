@@ -41,7 +41,7 @@ const contactValidation = [
   body('service')
     .notEmpty()
     .withMessage('Service selection is required')
-    .isIn(['redevelopment', 'government-contract', 'manpower', 'consultation', 'other'])
+    .isIn(['building-redevelopment', 'government-contracts', 'manpower-supply', 'project-management', 'redevelopment', 'government-contract', 'manpower', 'consultation', 'other'])
     .withMessage('Please select a valid service'),
 
   body('message')
