@@ -182,4 +182,9 @@ class Logger {
     if (res.statusCode >= 400) {
       this.warn(`HTTP ${res.statusCode} ${req.method} ${req.url}`, logData);
     } else {
-      this.info(`HTTP ${res.statusCode} ${req.method} ${req.url}`, logData
+      this.info(`HTTP ${res.statusCode} ${req.method} ${req.url}`, logData);
+    }
+  }
+}
+
+module.exports = Logger;
